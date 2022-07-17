@@ -17,6 +17,7 @@
 ![Image ](https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%9C%86%E7%8E%AF%E7%84%8A%E6%8E%A5.jpg)  
 ### 3.固件烧录
 使用stc-isp软件，加载文件夹下提供的simple_t12.hex文件下载到主控板即可，具体连线方式参考原理图。
+![Image ](https://github.com/liweinan1/simple_t12/blob/main/pictures/stc-isp.jpg)
 
 ### 4.屏幕焊接与测试
 将屏幕插入到主控板的FPC接口上，通电测试屏幕是否成功点亮，第一次开机温度显示-1℃，若屏幕无法正常点亮，检查78L05的输入输出电压，判断是否供电正常，正常输出电压为5V左右。若无输出电压，请检查typec接口、FS312芯片是否有虚焊或连锡短路的情况。
