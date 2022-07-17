@@ -6,7 +6,7 @@
 <!-- https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%B5%8B%E8%AF%95%E8%A7%86%E9%A2%91.mp4 -->
 ## 原理图与PCB图  
 ![Image ](https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%8E%9F%E7%90%86%E5%9B%BE.jpg)
-![Image ](https://github.com/liweinan1/simple_t12/blob/main/pictures/PCB_3D%E8%A7%86%E5%9B%BE.png)
+![Image ](https://github.com/liweinan1/simple_t12/blob/main/pictures/3D%E8%A7%86%E5%9B%BE.png)
 
 ## 极简数控T12安装与调试指导
 ### 1.主板与按键板焊接  
