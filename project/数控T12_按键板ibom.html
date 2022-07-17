@@ -1,0 +1,4431 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive BOM for KiCAD</title>
+  <style type="text/css">
+:root {
+  --pcb-edge-color: black;
+  --pad-color: #878787;
+  --pad-hole-color: #CCCCCC;
+  --pad-color-highlight: #D04040;
+  --pin1-outline-color: #ffb629;
+  --pin1-outline-color-highlight: #b4ff03;
+  --silkscreen-edge-color: #aa4;
+  --silkscreen-polygon-color: #4aa;
+  --silkscreen-text-color: #4aa;
+  --fabrication-edge-color: #907651;
+  --fabrication-polygon-color: #907651;
+  --fabrication-text-color: #a27c24;
+  --track-color: #def5f1;
+  --track-color-highlight: #D04040;
+  --zone-color: #def5f1;
+  --zone-color-highlight: #d0404080;
+}
+
+html, body {
+  margin: 0px;
+  height: 100%;
+  font-family: Verdana, sans-serif;
+}
+
+.dark.topmostdiv {
+  --pcb-edge-color: #eee;
+  --pad-color: #808080;
+  --pin1-outline-color: #ffa800;
+  --pin1-outline-color-highlight: #ccff00;
+  --track-color: #42524f;
+  --zone-color: #42524f;
+  background-color: #252c30;
+  color: #eee;
+}
+
+button {
+  background-color: #eee;
+  border: 1px solid #888;
+  color: black;
+  height: 44px;
+  width: 44px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: bolder;
+}
+
+.dark button {
+  /* This will be inverted */
+  background-color: #c3b7b5;
+}
+
+button.depressed {
+  background-color: #0a0;
+  color: white;
+}
+
+.dark button.depressed {
+  /* This will be inverted */
+  background-color: #b3b;
+}
+
+button:focus {
+  outline: 0;
+}
+
+button#tb-btn {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8.47 8.47'%3E%3Crect transform='translate(0 -288.53)' ry='1.17' y='288.8' x='.27' height='7.94' width='7.94' fill='%23f9f9f9'/%3E%3Cg transform='translate(0 -288.53)'%3E%3Crect width='7.94' height='7.94' x='.27' y='288.8' ry='1.17' fill='none' stroke='%23000' stroke-width='.4' stroke-linejoin='round'/%3E%3Cpath d='M1.32 290.12h5.82M1.32 291.45h5.82' fill='none' stroke='%23000' stroke-width='.4'/%3E%3Cpath d='M4.37 292.5v4.23M.26 292.63H8.2' fill='none' stroke='%23000' stroke-width='.3'/%3E%3Ctext font-weight='700' font-size='3.17' font-family='sans-serif'%3E%3Ctspan x='1.35' y='295.73'%3EF%3C/tspan%3E%3Ctspan x='5.03' y='295.68'%3EB%3C/tspan%3E%3C/text%3E%3C/g%3E%3C/svg%3E%0A");
+}
+
+button#lr-btn {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8.47 8.47'%3E%3Crect transform='translate(0 -288.53)' ry='1.17' y='288.8' x='.27' height='7.94' width='7.94' fill='%23f9f9f9'/%3E%3Cg transform='translate(0 -288.53)'%3E%3Crect width='7.94' height='7.94' x='.27' y='288.8' ry='1.17' fill='none' stroke='%23000' stroke-width='.4' stroke-linejoin='round'/%3E%3Cpath d='M1.06 290.12H3.7m-2.64 1.33H3.7m-2.64 1.32H3.7m-2.64 1.3H3.7m-2.64 1.33H3.7' fill='none' stroke='%23000' stroke-width='.4'/%3E%3Cpath d='M4.37 288.8v7.94m0-4.11h3.96' fill='none' stroke='%23000' stroke-width='.3'/%3E%3Ctext font-weight='700' font-size='3.17' font-family='sans-serif'%3E%3Ctspan x='5.11' y='291.96'%3EF%3C/tspan%3E%3Ctspan x='5.03' y='295.68'%3EB%3C/tspan%3E%3C/text%3E%3C/g%3E%3C/svg%3E%0A");
+}
+
+button#bom-btn {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8.47 8.47'%3E%3Crect transform='translate(0 -288.53)' ry='1.17' y='288.8' x='.27' height='7.94' width='7.94' fill='%23f9f9f9'/%3E%3Cg transform='translate(0 -288.53)' fill='none' stroke='%23000' stroke-width='.4'%3E%3Crect width='7.94' height='7.94' x='.27' y='288.8' ry='1.17' stroke-linejoin='round'/%3E%3Cpath d='M1.59 290.12h5.29M1.59 291.45h5.33M1.59 292.75h5.33M1.59 294.09h5.33M1.59 295.41h5.33'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+button#bom-grouped-btn {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cg stroke='%23000' stroke-linejoin='round' class='layer'%3E%3Crect width='29' height='29' x='1.5' y='1.5' stroke-width='2' fill='%23fff' rx='5' ry='5'/%3E%3Cpath stroke-linecap='square' stroke-width='2' d='M6 10h4m4 0h5m4 0h3M6.1 22h3m3.9 0h5m4 0h4m-16-8h4m4 0h4'/%3E%3Cpath stroke-linecap='null' d='M5 17.5h22M5 26.6h22M5 5.5h22'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+button#bom-ungrouped-btn {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cg stroke='%23000' stroke-linejoin='round' class='layer'%3E%3Crect width='29' height='29' x='1.5' y='1.5' stroke-width='2' fill='%23fff' rx='5' ry='5'/%3E%3Cpath stroke-linecap='square' stroke-width='2' d='M6 10h4m-4 8h3m-3 8h4'/%3E%3Cpath stroke-linecap='null' d='M5 13.5h22m-22 8h22M5 5.5h22'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+button#bom-netlist-btn {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cg fill='none' stroke='%23000' class='layer'%3E%3Crect width='29' height='29' x='1.5' y='1.5' stroke-width='2' fill='%23fff' rx='5' ry='5'/%3E%3Cpath stroke-width='2' d='M6 26l6-6v-8m13.8-6.3l-6 6v8'/%3E%3Ccircle cx='11.8' cy='9.5' r='2.8' stroke-width='2'/%3E%3Ccircle cx='19.8' cy='22.8' r='2.8' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+button#copy {
+  background-image: url("data:image/svg+xml,%3Csvg height='48' viewBox='0 0 48 48' width='48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h48v48h-48z' fill='none'/%3E%3Cpath d='M32 2h-24c-2.21 0-4 1.79-4 4v28h4v-28h24v-4zm6 8h-22c-2.21 0-4 1.79-4 4v28c0 2.21 1.79 4 4 4h22c2.21 0 4-1.79 4-4v-28c0-2.21-1.79-4-4-4zm0 32h-22v-28h22v28z'/%3E%3C/svg%3E");
+  background-position: 6px 6px;
+  background-repeat: no-repeat;
+  background-size: 26px 26px;
+  border-radius: 6px;
+  height: 40px;
+  width: 40px;
+  margin: 10px 5px;
+}
+
+button#copy:active {
+    box-shadow: inset 0px 0px 5px #6c6c6c;
+}
+
+textarea.clipboard-temp {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 2em;
+  height: 2em;
+  padding: 0;
+  border: None;
+  outline: None;
+  box-shadow: None;
+  background: transparent;
+}
+
+.left-most-button {
+  border-right: 0;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.middle-button {
+  border-right: 0;
+}
+
+.right-most-button {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.button-container {
+  font-size: 0;
+  margin: 10px 10px 10px 0px;
+}
+
+.dark .button-container {
+  filter: invert(1);
+}
+
+.button-container button {
+  background-size: 32px 32px;
+  background-position: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+@media print {
+  .hideonprint {
+    display: none;
+  }
+}
+
+canvas {
+  cursor: crosshair;
+}
+
+canvas:active {
+  cursor: grabbing;
+}
+
+.fileinfo {
+  width: 100%;
+  max-width: 1000px;
+  border: none;
+  padding: 5px;
+}
+
+.fileinfo .title {
+  font-size: 20pt;
+  font-weight: bold;
+}
+
+.fileinfo td {
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 1px;
+  width: 50%;
+  text-overflow: ellipsis;
+}
+
+.bom {
+  border-collapse: collapse;
+  font-family: Consolas, "DejaVu Sans Mono", Monaco, monospace;
+  font-size: 10pt;
+  table-layout: fixed;
+  width: 100%;
+  margin-top: 1px;
+}
+
+.bom th, .bom td {
+  border: 1px solid black;
+  padding: 5px;
+  word-wrap: break-word;
+  text-align: center;
+  position: relative;
+}
+
+.dark .bom th, .dark .bom td {
+  border: 1px solid #777;
+}
+
+.bom th {
+  background-color: #CCCCCC;
+  background-clip: padding-box;
+}
+
+.dark .bom th {
+  background-color: #3b4749;
+}
+
+.bom tr.highlighted:nth-child(n) {
+  background-color: #cfc;
+}
+
+.dark .bom tr.highlighted:nth-child(n) {
+  background-color: #226022;
+}
+
+.bom tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.dark .bom tr:nth-child(even) {
+  background-color: #313b40;
+}
+
+.bom tr.checked {
+  color: #aaa;
+}
+
+.dark .bom tr.checked {
+  color: #666;
+}
+
+.bom tr {
+  transition: background-color 0.2s;
+}
+
+.bom .numCol {
+  width: 25px;
+}
+
+.bom .Description {
+  width: 10%;
+}
+
+.bom .Part {
+  width: 10%;
+}
+
+.bom .Value {
+  width: 15%;
+}
+
+.bom .Quantity {
+  width: 65px;
+}
+
+.bom th .sortmark {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #221 transparent;
+  transform-origin: 50% 85%;
+  transition: opacity 0.2s, transform 0.4s;
+}
+
+.dark .bom th .sortmark {
+  filter: invert(1);
+}
+
+.bom th .sortmark.none {
+  opacity: 0;
+}
+
+.bom th .sortmark.desc {
+  transform: rotate(180deg);
+}
+
+.bom th:hover .sortmark.none {
+  opacity: 0.5;
+}
+
+.bom .bom-checkbox {
+  width: 30px;
+  position: relative;
+  user-select: none;
+  -moz-user-select: none;
+}
+
+.bom .bom-checkbox:before {
+  content: "";
+  position: absolute;
+  border-width: 15px;
+  border-style: solid;
+  border-color: #51829f transparent transparent transparent;
+  visibility: hidden;
+  top: -15px;
+}
+
+.bom .bom-checkbox:after {
+  content: "Double click to set/unset all";
+  position: absolute;
+  color: white;
+  top: -35px;
+  left: -26px;
+  background: #51829f;
+  padding: 5px 15px;
+  border-radius: 8px;
+  white-space: nowrap;
+  visibility: hidden;
+}
+
+.bom .bom-checkbox:hover:before, .bom .bom-checkbox:hover:after {
+  visibility: visible;
+  transition: visibility 0.2s linear 1s;
+}
+
+.split {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: inherit;
+}
+
+.split.split-horizontal, .gutter.gutter-horizontal {
+  height: 100%;
+  float: left;
+}
+
+.gutter {
+  background-color: #ddd;
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transition: background-color 0.3s;
+}
+
+.dark .gutter {
+  background-color: #777;
+}
+
+.gutter.gutter-horizontal {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+  cursor: ew-resize;
+  width: 5px;
+}
+
+.gutter.gutter-vertical {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+  cursor: ns-resize;
+  height: 5px;
+}
+
+.searchbox {
+  float: left;
+  height: 40px;
+  margin: 10px 5px;
+  padding: 12px 32px;
+  font-family: Consolas, "DejaVu Sans Mono", Monaco, monospace;
+  font-size: 18px;
+  box-sizing: border-box;
+  border: 1px solid #888;
+  border-radius: 6px;
+  outline: none;
+  background-color: #eee;
+  transition: background-color 0.2s, border 0.2s;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABNklEQVQ4T8XSMUvDQBQH8P/LElFa/AIZHcTBQSz0I/gFstTBRR2KUC4ldDxw7h0Bl3RRUATxi4iiODgoiLNrbQYp5J6cpJJqomkX33Z37/14d/dIa33MzDuYI4johOI4XhyNRteO46zNYjDzAxE1yBZprVeZ+QbAUhXEGJMA2Ox2u4+fQIa0mPmsCgCgJYQ4t7lfgF0opQYAdv9ABkKI/UnOFCClXKjX61cA1osQY8x9kiRNKeV7IWA3oyhaSdP0FkAtjxhj3hzH2RBCPOf3pzqYHCilfAAX+URm9oMguPzeWSGQvUcMYC8rOBJCHBRdqxTo9/vbRHRqi8bj8XKv1xvODbiuW2u32/bvf0SlDv4XYOY7z/Mavu+nM1+BmQ+NMc0wDF/LprP0DbTWW0T00ul0nn4b7Q87+X4Qmfiq2wAAAABJRU5ErkJggg==');
+  background-position: 10px 10px;
+  background-repeat: no-repeat;
+}
+
+.dark .searchbox {
+  background-color: #111;
+  color: #eee;
+}
+
+.searchbox::placeholder {
+  color: #ccc;
+}
+
+.dark .searchbox::placeholder {
+  color: #666;
+}
+
+.filter {
+  width: calc(60% - 64px);
+}
+
+.reflookup {
+  width: calc(40% - 10px);
+}
+
+input[type=text]:focus {
+  background-color: white;
+  border: 1px solid #333;
+}
+
+.dark input[type=text]:focus {
+  background-color: #333;
+  border: 1px solid #ccc;
+}
+
+mark.highlight {
+  background-color: #5050ff;
+  color: #fff;
+  padding: 2px;
+  border-radius: 6px;
+}
+
+.dark mark.highlight {
+  background-color: #76a6da;
+  color: #111;
+}
+
+.menubtn {
+  background-color: white;
+  border: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 20 20'%3E%3Cpath fill='none' d='M0 0h20v20H0V0z'/%3E%3Cpath d='M15.95 10.78c.03-.25.05-.51.05-.78s-.02-.53-.06-.78l1.69-1.32c.15-.12.19-.34.1-.51l-1.6-2.77c-.1-.18-.31-.24-.49-.18l-1.99.8c-.42-.32-.86-.58-1.35-.78L12 2.34c-.03-.2-.2-.34-.4-.34H8.4c-.2 0-.36.14-.39.34l-.3 2.12c-.49.2-.94.47-1.35.78l-1.99-.8c-.18-.07-.39 0-.49.18l-1.6 2.77c-.1.18-.06.39.1.51l1.69 1.32c-.04.25-.07.52-.07.78s.02.53.06.78L2.37 12.1c-.15.12-.19.34-.1.51l1.6 2.77c.1.18.31.24.49.18l1.99-.8c.42.32.86.58 1.35.78l.3 2.12c.04.2.2.34.4.34h3.2c.2 0 .37-.14.39-.34l.3-2.12c.49-.2.94-.47 1.35-.78l1.99.8c.18.07.39 0 .49-.18l1.6-2.77c.1-.18.06-.39-.1-.51l-1.67-1.32zM10 13c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z'/%3E%3C/svg%3E%0A");
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.statsbtn {
+  background-color: white;
+  border: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='36' height='36' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6h28v24H4V6zm0 8h28v8H4m9-16v24h10V5.8' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.iobtn {
+  background-color: white;
+  border: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Cpath fill='none' stroke='%23000' stroke-width='2' d='M3 33v-7l6.8-7h16.5l6.7 7v7H3zM3.2 26H33M21 9l5-5.9 5 6h-2.5V15h-5V9H21zm-4.9 0l-5 6-5-6h2.5V3h5v6h2.5z'/%3E%3Cpath fill='none' stroke='%23000' d='M6.1 29.5H10'/%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.dark .statsbtn, .dark .savebtn, .dark .menubtn, .dark .iobtn {
+  filter: invert(1);
+}
+
+.flexbox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.savebtn {
+  background-color: #d6d6d6;
+  width: auto;
+  height: 30px;
+  flex-grow: 1;
+  margin: 5px;
+  border-radius: 4px;
+}
+
+.savebtn:active {
+  background-color: #0a0;
+  color: white;
+}
+
+.dark .savebtn:active {
+  /* This will be inverted */
+  background-color: #b3b;
+}
+
+.stats {
+  border-collapse: collapse;
+  font-size: 12pt;
+  table-layout: fixed;
+  width: 100%;
+  min-width: 450px;
+}
+
+.dark .stats td {
+  border: 1px solid #bbb;
+}
+
+.stats td {
+  border: 1px solid black;
+  padding: 5px;
+  word-wrap: break-word;
+  text-align: center;
+  position: relative;
+}
+
+#checkbox-stats div {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#checkbox-stats .bar {
+  background-color: rgba(28, 251, 0, 0.6);
+}
+
+.menu {
+  position: relative;
+  display: inline-block;
+  margin: 10px 10px 10px 0px;
+}
+
+.menu-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  right: 0;
+  min-width: 300px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  padding: 8px;
+}
+
+.dark .menu-content {
+  background-color: #111;
+}
+
+.menu:hover .menu-content {
+  display: block;
+}
+
+.menu:hover .menubtn, .menu:hover .iobtn, .menu:hover .statsbtn {
+  background-color: #eee;
+}
+
+.menu-label {
+  display: inline-block;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-top: 0;
+  width: calc(100% - 18px);
+}
+
+.menu-label-top {
+  border-top: 1px solid #ccc;
+}
+
+.menu-textbox {
+  float: left;
+  height: 24px;
+  margin: 10px 5px;
+  padding: 5px 5px;
+  font-family: Consolas, "DejaVu Sans Mono", Monaco, monospace;
+  font-size: 14px;
+  box-sizing: border-box;
+  border: 1px solid #888;
+  border-radius: 4px;
+  outline: none;
+  background-color: #eee;
+  transition: background-color 0.2s, border 0.2s;
+  width: calc(100% - 10px);
+}
+
+.menu-textbox.invalid, .dark .menu-textbox.invalid {
+  color: red;
+}
+
+.dark .menu-textbox {
+  background-color: #222;
+  color: #eee;
+}
+
+.radio-container {
+  margin: 4px;
+}
+
+.topmostdiv {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  transition: background-color 0.3s;
+}
+
+#top {
+  height: 78px;
+  border-bottom: 2px solid black;
+}
+
+.dark #top {
+  border-bottom: 2px solid #ccc;
+}
+
+#dbg {
+  display: block;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #aaa;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  margin: 3px 0;
+  padding: 0;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  border-radius: 3px;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider:focus {
+  outline: none;
+}
+
+.slider::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  background: #d3d3d3;
+  border-radius: 3px;
+  border: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #0a0;
+  cursor: pointer;
+  margin-top: -4px;
+}
+
+.dark .slider::-webkit-slider-thumb {
+  background: #3d3;
+}
+
+.slider::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #0a0;
+  cursor: pointer;
+}
+
+.slider::-moz-range-track {
+  height: 8px;
+  background: #d3d3d3;
+  border-radius: 3px;
+}
+
+.dark .slider::-moz-range-thumb {
+  background: #3d3;
+}
+
+.slider::-ms-track {
+  width: 100%;
+  height: 8px;
+  border-width: 3px 0;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+  transition: opacity .2s;
+}
+
+.slider::-ms-fill-lower {
+  background: #d3d3d3;
+  border: none;
+  border-radius: 3px;
+}
+
+.slider::-ms-fill-upper {
+  background: #d3d3d3;
+  border: none;
+  border-radius: 3px;
+}
+
+.slider::-ms-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #0a0;
+  cursor: pointer;
+  margin: 0;
+}
+
+.shameless-plug {
+  font-size: 0.8em;
+  text-align: center;
+  display: block;
+}
+
+a {
+  color: #0278a4;
+}
+
+.dark a {
+  color: #00b9fd;
+}
+
+#frontcanvas, #backcanvas {
+    touch-action: none;
+}
+
+ 
+  </style>
+  <script type="text/javascript" >
+///////////////////////////////////////////////
+/*
+  Split.js - v1.3.5
+  MIT License
+  https://github.com/nathancahill/Split.js
+*/
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):e.Split=t()}(this,function(){"use strict";var e=window,t=e.document,n="addEventListener",i="removeEventListener",r="getBoundingClientRect",s=function(){return!1},o=e.attachEvent&&!e[n],a=["","-webkit-","-moz-","-o-"].filter(function(e){var n=t.createElement("div");return n.style.cssText="width:"+e+"calc(9px)",!!n.style.length}).shift()+"calc",l=function(e){return"string"==typeof e||e instanceof String?t.querySelector(e):e};return function(u,c){function z(e,t,n){var i=A(y,t,n);Object.keys(i).forEach(function(t){return e.style[t]=i[t]})}function h(e,t){var n=B(y,t);Object.keys(n).forEach(function(t){return e.style[t]=n[t]})}function f(e){var t=E[this.a],n=E[this.b],i=t.size+n.size;t.size=e/this.size*i,n.size=i-e/this.size*i,z(t.element,t.size,this.aGutterSize),z(n.element,n.size,this.bGutterSize)}function m(e){var t;this.dragging&&((t="touches"in e?e.touches[0][b]-this.start:e[b]-this.start)<=E[this.a].minSize+M+this.aGutterSize?t=E[this.a].minSize+this.aGutterSize:t>=this.size-(E[this.b].minSize+M+this.bGutterSize)&&(t=this.size-(E[this.b].minSize+this.bGutterSize)),f.call(this,t),c.onDrag&&c.onDrag())}function g(){var e=E[this.a].element,t=E[this.b].element;this.size=e[r]()[y]+t[r]()[y]+this.aGutterSize+this.bGutterSize,this.start=e[r]()[G]}function d(){var t=this,n=E[t.a].element,r=E[t.b].element;t.dragging&&c.onDragEnd&&c.onDragEnd(),t.dragging=!1,e[i]("mouseup",t.stop),e[i]("touchend",t.stop),e[i]("touchcancel",t.stop),t.parent[i]("mousemove",t.move),t.parent[i]("touchmove",t.move),delete t.stop,delete t.move,n[i]("selectstart",s),n[i]("dragstart",s),r[i]("selectstart",s),r[i]("dragstart",s),n.style.userSelect="",n.style.webkitUserSelect="",n.style.MozUserSelect="",n.style.pointerEvents="",r.style.userSelect="",r.style.webkitUserSelect="",r.style.MozUserSelect="",r.style.pointerEvents="",t.gutter.style.cursor="",t.parent.style.cursor=""}function S(t){var i=this,r=E[i.a].element,o=E[i.b].element;!i.dragging&&c.onDragStart&&c.onDragStart(),t.preventDefault(),i.dragging=!0,i.move=m.bind(i),i.stop=d.bind(i),e[n]("mouseup",i.stop),e[n]("touchend",i.stop),e[n]("touchcancel",i.stop),i.parent[n]("mousemove",i.move),i.parent[n]("touchmove",i.move),r[n]("selectstart",s),r[n]("dragstart",s),o[n]("selectstart",s),o[n]("dragstart",s),r.style.userSelect="none",r.style.webkitUserSelect="none",r.style.MozUserSelect="none",r.style.pointerEvents="none",o.style.userSelect="none",o.style.webkitUserSelect="none",o.style.MozUserSelect="none",o.style.pointerEvents="none",i.gutter.style.cursor=j,i.parent.style.cursor=j,g.call(i)}function v(e){e.forEach(function(t,n){if(n>0){var i=F[n-1],r=E[i.a],s=E[i.b];r.size=e[n-1],s.size=t,z(r.element,r.size,i.aGutterSize),z(s.element,s.size,i.bGutterSize)}})}function p(){F.forEach(function(e){e.parent.removeChild(e.gutter),E[e.a].element.style[y]="",E[e.b].element.style[y]=""})}void 0===c&&(c={});var y,b,G,E,w=l(u[0]).parentNode,D=e.getComputedStyle(w).flexDirection,U=c.sizes||u.map(function(){return 100/u.length}),k=void 0!==c.minSize?c.minSize:100,x=Array.isArray(k)?k:u.map(function(){return k}),L=void 0!==c.gutterSize?c.gutterSize:10,M=void 0!==c.snapOffset?c.snapOffset:30,O=c.direction||"horizontal",j=c.cursor||("horizontal"===O?"ew-resize":"ns-resize"),C=c.gutter||function(e,n){var i=t.createElement("div");return i.className="gutter gutter-"+n,i},A=c.elementStyle||function(e,t,n){var i={};return"string"==typeof t||t instanceof String?i[e]=t:i[e]=o?t+"%":a+"("+t+"% - "+n+"px)",i},B=c.gutterStyle||function(e,t){return n={},n[e]=t+"px",n;var n};"horizontal"===O?(y="width","clientWidth",b="clientX",G="left","paddingLeft"):"vertical"===O&&(y="height","clientHeight",b="clientY",G="top","paddingTop");var F=[];return E=u.map(function(e,t){var i,s={element:l(e),size:U[t],minSize:x[t]};if(t>0&&(i={a:t-1,b:t,dragging:!1,isFirst:1===t,isLast:t===u.length-1,direction:O,parent:w},i.aGutterSize=L,i.bGutterSize=L,i.isFirst&&(i.aGutterSize=L/2),i.isLast&&(i.bGutterSize=L/2),"row-reverse"===D||"column-reverse"===D)){var a=i.a;i.a=i.b,i.b=a}if(!o&&t>0){var c=C(t,O);h(c,L),c[n]("mousedown",S.bind(i)),c[n]("touchstart",S.bind(i)),w.insertBefore(c,s.element),i.gutter=c}0===t||t===u.length-1?z(s.element,s.size,L/2):z(s.element,s.size,L);var f=s.element[r]()[y];return f<s.minSize&&(s.minSize=f),t>0&&F.push(i),s}),o?{setSizes:v,destroy:p}:{setSizes:v,getSizes:function(){return E.map(function(e){return e.size})},collapse:function(e){if(e===F.length){var t=F[e-1];g.call(t),o||f.call(t,t.size-t.bGutterSize)}else{var n=F[e];g.call(n),o||f.call(n,n.aGutterSize)}},destroy:p}}});
+
+///////////////////////////////////////////////
+
+///////////////////////////////////////////////
+// Copyright (c) 2013 Pieroxy <pieroxy@pieroxy.net>
+// This work is free. You can redistribute it and/or modify it
+// under the terms of the WTFPL, Version 2
+// For more information see LICENSE.txt or http://www.wtfpl.net/
+//
+// For more information, the home page:
+// http://pieroxy.net/blog/pages/lz-string/testing.html
+//
+// LZ-based compression algorithm, version 1.4.4
+var LZString=function(){var o=String.fromCharCode,i={};var n={decompressFromBase64:function(o){return null==o?"":""==o?null:n._decompress(o.length,32,function(n){return function(o,n){if(!i[o]){i[o]={};for(var t=0;t<o.length;t++)i[o][o.charAt(t)]=t}return i[o][n]}("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",o.charAt(n))})},_decompress:function(i,n,t){var r,e,a,s,p,u,l,f=[],c=4,d=4,h=3,v="",g=[],m={val:t(0),position:n,index:1};for(r=0;r<3;r+=1)f[r]=r;for(a=0,p=Math.pow(2,2),u=1;u!=p;)s=m.val&m.position,m.position>>=1,0==m.position&&(m.position=n,m.val=t(m.index++)),a|=(s>0?1:0)*u,u<<=1;switch(a){case 0:for(a=0,p=Math.pow(2,8),u=1;u!=p;)s=m.val&m.position,m.position>>=1,0==m.position&&(m.position=n,m.val=t(m.index++)),a|=(s>0?1:0)*u,u<<=1;l=o(a);break;case 1:for(a=0,p=Math.pow(2,16),u=1;u!=p;)s=m.val&m.position,m.position>>=1,0==m.position&&(m.position=n,m.val=t(m.index++)),a|=(s>0?1:0)*u,u<<=1;l=o(a);break;case 2:return""}for(f[3]=l,e=l,g.push(l);;){if(m.index>i)return"";for(a=0,p=Math.pow(2,h),u=1;u!=p;)s=m.val&m.position,m.position>>=1,0==m.position&&(m.position=n,m.val=t(m.index++)),a|=(s>0?1:0)*u,u<<=1;switch(l=a){case 0:for(a=0,p=Math.pow(2,8),u=1;u!=p;)s=m.val&m.position,m.position>>=1,0==m.position&&(m.position=n,m.val=t(m.index++)),a|=(s>0?1:0)*u,u<<=1;f[d++]=o(a),l=d-1,c--;break;case 1:for(a=0,p=Math.pow(2,16),u=1;u!=p;)s=m.val&m.position,m.position>>=1,0==m.position&&(m.position=n,m.val=t(m.index++)),a|=(s>0?1:0)*u,u<<=1;f[d++]=o(a),l=d-1,c--;break;case 2:return g.join("")}if(0==c&&(c=Math.pow(2,h),h++),f[l])v=f[l];else{if(l!==d)return null;v=e+e.charAt(0)}g.push(v),f[d++]=e+v.charAt(0),e=v,0==--c&&(c=Math.pow(2,h),h++)}}};return n}();"function"==typeof define&&define.amd?define(function(){return LZString}):"undefined"!=typeof module&&null!=module?module.exports=LZString:"undefined"!=typeof angular&&null!=angular&&angular.module("LZString",[]).factory("LZString",function(){return LZString});
+///////////////////////////////////////////////
+
+///////////////////////////////////////////////
+/*!
+ * PEP v0.4.3 | https://github.com/jquery/PEP
+ * Copyright jQuery Foundation and other contributors | http://jquery.org/license
+ */
+! function (a, b) {
+  "object" == typeof exports && "undefined" != typeof module ? module.exports = b() : "function" == typeof define && define.amd ? define(b) : a.PointerEventsPolyfill = b()
+}(this, function () {
+  "use strict";
+
+  function a(a, b) {
+    b = b || Object.create(null);
+    var c = document.createEvent("Event");
+    c.initEvent(a, b.bubbles || !1, b.cancelable || !1);
+    for (var d, e = 2; e < m.length; e++) d = m[e], c[d] = b[d] || n[e];
+    c.buttons = b.buttons || 0;
+    var f = 0;
+    return f = b.pressure && c.buttons ? b.pressure : c.buttons ? .5 : 0, c.x = c.clientX, c.y = c.clientY, c.pointerId = b.pointerId || 0, c.width = b.width || 0, c.height = b.height || 0, c.pressure = f, c.tiltX = b.tiltX || 0, c.tiltY = b.tiltY || 0, c.twist = b.twist || 0, c.tangentialPressure = b.tangentialPressure || 0, c.pointerType = b.pointerType || "", c.hwTimestamp = b.hwTimestamp || 0, c.isPrimary = b.isPrimary || !1, c
+  }
+
+  function b() {
+    this.array = [], this.size = 0
+  }
+
+  function c(a, b, c, d) {
+    this.addCallback = a.bind(d), this.removeCallback = b.bind(d), this.changedCallback = c.bind(d), A && (this.observer = new A(this.mutationWatcher.bind(this)))
+  }
+
+  function d(a) {
+    return "body /shadow-deep/ " + e(a)
+  }
+
+  function e(a) {
+    return '[touch-action="' + a + '"]'
+  }
+
+  function f(a) {
+    return "{ -ms-touch-action: " + a + "; touch-action: " + a + "; }"
+  }
+
+  function g() {
+    if (F) {
+      D.forEach(function (a) {
+        String(a) === a ? (E += e(a) + f(a) + "\n", G && (E += d(a) + f(a) + "\n")) : (E += a.selectors.map(e) + f(a.rule) + "\n", G && (E += a.selectors.map(d) + f(a.rule) + "\n"))
+      });
+      var a = document.createElement("style");
+      a.textContent = E, document.head.appendChild(a)
+    }
+  }
+
+  function h() {
+    if (!window.PointerEvent) {
+      if (window.PointerEvent = a, window.navigator.msPointerEnabled) {
+        var b = window.navigator.msMaxTouchPoints;
+        Object.defineProperty(window.navigator, "maxTouchPoints", {
+          value: b,
+          enumerable: !0
+        }), u.registerSource("ms", _)
+      } else Object.defineProperty(window.navigator, "maxTouchPoints", {
+        value: 0,
+        enumerable: !0
+      }), u.registerSource("mouse", N), void 0 !== window.ontouchstart && u.registerSource("touch", V);
+      u.register(document)
+    }
+  }
+
+  function i(a) {
+    if (!u.pointermap.has(a)) {
+      var b = new Error("InvalidPointerId");
+      throw b.name = "InvalidPointerId", b
+    }
+  }
+
+  function j(a) {
+    for (var b = a.parentNode; b && b !== a.ownerDocument;) b = b.parentNode;
+    if (!b) {
+      var c = new Error("InvalidStateError");
+      throw c.name = "InvalidStateError", c
+    }
+  }
+
+  function k(a) {
+    var b = u.pointermap.get(a);
+    return 0 !== b.buttons
+  }
+
+  function l() {
+    window.Element && !Element.prototype.setPointerCapture && Object.defineProperties(Element.prototype, {
+      setPointerCapture: {
+        value: W
+      },
+      releasePointerCapture: {
+        value: X
+      },
+      hasPointerCapture: {
+        value: Y
+      }
+    })
+  }
+  var m = ["bubbles", "cancelable", "view", "detail", "screenX", "screenY", "clientX", "clientY", "ctrlKey", "altKey", "shiftKey", "metaKey", "button", "relatedTarget", "pageX", "pageY"],
+    n = [!1, !1, null, null, 0, 0, 0, 0, !1, !1, !1, !1, 0, null, 0, 0],
+    o = window.Map && window.Map.prototype.forEach,
+    p = o ? Map : b;
+  b.prototype = {
+    set: function (a, b) {
+      return void 0 === b ? this["delete"](a) : (this.has(a) || this.size++, void(this.array[a] = b))
+    },
+    has: function (a) {
+      return void 0 !== this.array[a]
+    },
+    "delete": function (a) {
+      this.has(a) && (delete this.array[a], this.size--)
+    },
+    get: function (a) {
+      return this.array[a]
+    },
+    clear: function () {
+      this.array.length = 0, this.size = 0
+    },
+    forEach: function (a, b) {
+      return this.array.forEach(function (c, d) {
+        a.call(b, c, d, this)
+      }, this)
+    }
+  };
+  var q = ["bubbles", "cancelable", "view", "detail", "screenX", "screenY", "clientX", "clientY", "ctrlKey", "altKey", "shiftKey", "metaKey", "button", "relatedTarget", "buttons", "pointerId", "width", "height", "pressure", "tiltX", "tiltY", "pointerType", "hwTimestamp", "isPrimary", "type", "target", "currentTarget", "which", "pageX", "pageY", "timeStamp"],
+    r = [!1, !1, null, null, 0, 0, 0, 0, !1, !1, !1, !1, 0, null, 0, 0, 0, 0, 0, 0, 0, "", 0, !1, "", null, null, 0, 0, 0, 0],
+    s = {
+      pointerover: 1,
+      pointerout: 1,
+      pointerenter: 1,
+      pointerleave: 1
+    },
+    t = "undefined" != typeof SVGElementInstance,
+    u = {
+      pointermap: new p,
+      eventMap: Object.create(null),
+      captureInfo: Object.create(null),
+      eventSources: Object.create(null),
+      eventSourceList: [],
+      registerSource: function (a, b) {
+        var c = b,
+          d = c.events;
+        d && (d.forEach(function (a) {
+          c[a] && (this.eventMap[a] = c[a].bind(c))
+        }, this), this.eventSources[a] = c, this.eventSourceList.push(c))
+      },
+      register: function (a) {
+        for (var b, c = this.eventSourceList.length, d = 0; d < c && (b = this.eventSourceList[d]); d++)
+          b.register.call(b, a)
+      },
+      unregister: function (a) {
+        for (var b, c = this.eventSourceList.length, d = 0; d < c && (b = this.eventSourceList[d]); d++)
+          b.unregister.call(b, a)
+      },
+      contains: function (a, b) {
+        try {
+          return a.contains(b)
+        } catch (c) {
+          return !1
+        }
+      },
+      down: function (a) {
+        a.bubbles = !0, this.fireEvent("pointerdown", a)
+      },
+      move: function (a) {
+        a.bubbles = !0, this.fireEvent("pointermove", a)
+      },
+      up: function (a) {
+        a.bubbles = !0, this.fireEvent("pointerup", a)
+      },
+      enter: function (a) {
+        a.bubbles = !1, this.fireEvent("pointerenter", a)
+      },
+      leave: function (a) {
+        a.bubbles = !1, this.fireEvent("pointerleave", a)
+      },
+      over: function (a) {
+        a.bubbles = !0, this.fireEvent("pointerover", a)
+      },
+      out: function (a) {
+        a.bubbles = !0, this.fireEvent("pointerout", a)
+      },
+      cancel: function (a) {
+        a.bubbles = !0, this.fireEvent("pointercancel", a)
+      },
+      leaveOut: function (a) {
+        this.out(a), this.propagate(a, this.leave, !1)
+      },
+      enterOver: function (a) {
+        this.over(a), this.propagate(a, this.enter, !0)
+      },
+      eventHandler: function (a) {
+        if (!a._handledByPE) {
+          var b = a.type,
+            c = this.eventMap && this.eventMap[b];
+          c && c(a), a._handledByPE = !0
+        }
+      },
+      listen: function (a, b) {
+        b.forEach(function (b) {
+          this.addEvent(a, b)
+        }, this)
+      },
+      unlisten: function (a, b) {
+        b.forEach(function (b) {
+          this.removeEvent(a, b)
+        }, this)
+      },
+      addEvent: function (a, b) {
+        a.addEventListener(b, this.boundHandler)
+      },
+      removeEvent: function (a, b) {
+        a.removeEventListener(b, this.boundHandler)
+      },
+      makeEvent: function (b, c) {
+        this.captureInfo[c.pointerId] && (c.relatedTarget = null);
+        var d = new a(b, c);
+        return c.preventDefault && (d.preventDefault = c.preventDefault), d._target = d._target || c.target, d
+      },
+      fireEvent: function (a, b) {
+        var c = this.makeEvent(a, b);
+        return this.dispatchEvent(c)
+      },
+      cloneEvent: function (a) {
+        for (var b, c = Object.create(null), d = 0; d < q.length; d++) b = q[d], c[b] = a[b] || r[d], !t || "target" !== b && "relatedTarget" !== b || c[b] instanceof SVGElementInstance && (c[b] = c[b].correspondingUseElement);
+        return a.preventDefault && (c.preventDefault = function () {
+          a.preventDefault()
+        }), c
+      },
+      getTarget: function (a) {
+        var b = this.captureInfo[a.pointerId];
+        return b ? a._target !== b && a.type in s ? void 0 : b : a._target
+      },
+      propagate: function (a, b, c) {
+        for (var d = a.target, e = []; d !== document && !d.contains(a.relatedTarget);)
+          if (e.push(d), d = d.parentNode, !d) return;
+        c && e.reverse(), e.forEach(function (c) {
+          a.target = c, b.call(this, a)
+        }, this)
+      },
+      setCapture: function (b, c, d) {
+        this.captureInfo[b] && this.releaseCapture(b, d), this.captureInfo[b] = c, this.implicitRelease = this.releaseCapture.bind(this, b, d), document.addEventListener("pointerup", this.implicitRelease), document.addEventListener("pointercancel", this.implicitRelease);
+        var e = new a("gotpointercapture");
+        e.pointerId = b, e._target = c, d || this.asyncDispatchEvent(e)
+      },
+      releaseCapture: function (b, c) {
+        var d = this.captureInfo[b];
+        if (d) {
+          this.captureInfo[b] = void 0, document.removeEventListener("pointerup", this.implicitRelease), document.removeEventListener("pointercancel", this.implicitRelease);
+          var e = new a("lostpointercapture");
+          e.pointerId = b, e._target = d, c || this.asyncDispatchEvent(e)
+        }
+      },
+      dispatchEvent: /*scope.external.dispatchEvent || */ function (a) {
+        var b = this.getTarget(a);
+        if (b) return b.dispatchEvent(a)
+      },
+      asyncDispatchEvent: function (a) {
+        requestAnimationFrame(this.dispatchEvent.bind(this, a))
+      }
+    };
+  u.boundHandler = u.eventHandler.bind(u);
+  var v = {
+      shadow: function (a) {
+        if (a) return a.shadowRoot || a.webkitShadowRoot
+      },
+      canTarget: function (a) {
+        return a && Boolean(a.elementFromPoint)
+      },
+      targetingShadow: function (a) {
+        var b = this.shadow(a);
+        if (this.canTarget(b)) return b
+      },
+      olderShadow: function (a) {
+        var b = a.olderShadowRoot;
+        if (!b) {
+          var c = a.querySelector("shadow");
+          c && (b = c.olderShadowRoot)
+        }
+        return b
+      },
+      allShadows: function (a) {
+        for (var b = [], c = this.shadow(a); c;) b.push(c), c = this.olderShadow(c);
+        return b
+      },
+      searchRoot: function (a, b, c) {
+        if (a) {
+          var d, e, f = a.elementFromPoint(b, c);
+          for (e = this.targetingShadow(f); e;) {
+            if (d = e.elementFromPoint(b, c)) {
+              var g = this.targetingShadow(d);
+              return this.searchRoot(g, b, c) || d
+            }
+            e = this.olderShadow(e)
+          }
+          return f
+        }
+      },
+      owner: function (a) {
+        for (var b = a; b.parentNode;) b = b.parentNode;
+        return b.nodeType !== Node.DOCUMENT_NODE && b.nodeType !== Node.DOCUMENT_FRAGMENT_NODE && (b = document), b
+      },
+      findTarget: function (a) {
+        var b = a.clientX,
+          c = a.clientY,
+          d = this.owner(a.target);
+        return d.elementFromPoint(b, c) || (d = document), this.searchRoot(d, b, c)
+      }
+    },
+    w = Array.prototype.forEach.call.bind(Array.prototype.forEach),
+    x = Array.prototype.map.call.bind(Array.prototype.map),
+    y = Array.prototype.slice.call.bind(Array.prototype.slice),
+    z = Array.prototype.filter.call.bind(Array.prototype.filter),
+    A = window.MutationObserver || window.WebKitMutationObserver,
+    B = "[touch-action]",
+    C = {
+      subtree: !0,
+      childList: !0,
+      attributes: !0,
+      attributeOldValue: !0,
+      attributeFilter: ["touch-action"]
+    };
+  c.prototype = {
+    watchSubtree: function (a) {
+      //
+      this.observer && v.canTarget(a) && this.observer.observe(a, C)
+    },
+    enableOnSubtree: function (a) {
+      this.watchSubtree(a), a === document && "complete" !== document.readyState ? this.installOnLoad() : this.installNewSubtree(a)
+    },
+    installNewSubtree: function (a) {
+      w(this.findElements(a), this.addElement, this)
+    },
+    findElements: function (a) {
+      return a.querySelectorAll ? a.querySelectorAll(B) : []
+    },
+    removeElement: function (a) {
+      this.removeCallback(a)
+    },
+    addElement: function (a) {
+      this.addCallback(a)
+    },
+    elementChanged: function (a, b) {
+      this.changedCallback(a, b)
+    },
+    concatLists: function (a, b) {
+      return a.concat(y(b))
+    },
+    installOnLoad: function () {
+      document.addEventListener("readystatechange", function () {
+        "complete" === document.readyState && this.installNewSubtree(document)
+      }.bind(this))
+    },
+    isElement: function (a) {
+      return a.nodeType === Node.ELEMENT_NODE
+    },
+    flattenMutationTree: function (a) {
+      var b = x(a, this.findElements, this);
+      return b.push(z(a, this.isElement)), b.reduce(this.concatLists, [])
+    },
+    mutationWatcher: function (a) {
+      a.forEach(this.mutationHandler, this)
+    },
+    mutationHandler: function (a) {
+      if ("childList" === a.type) {
+        var b = this.flattenMutationTree(a.addedNodes);
+        b.forEach(this.addElement, this);
+        var c = this.flattenMutationTree(a.removedNodes);
+        c.forEach(this.removeElement, this)
+      } else "attributes" === a.type && this.elementChanged(a.target, a.oldValue)
+    }
+  };
+  var D = ["none", "auto", "pan-x", "pan-y", {
+      rule: "pan-x pan-y",
+      selectors: ["pan-x pan-y", "pan-y pan-x"]
+    }],
+    E = "",
+    F = window.PointerEvent || window.MSPointerEvent,
+    G = !window.ShadowDOMPolyfill && document.head.createShadowRoot,
+    H = u.pointermap,
+    I = 25,
+    J = [1, 4, 2, 8, 16],
+    K = !1;
+  try {
+    K = 1 === new MouseEvent("test", {
+      buttons: 1
+    }).buttons
+  } catch (L) {}
+  var M, N = {
+      POINTER_ID: 1,
+      POINTER_TYPE: "mouse",
+      events: ["mousedown", "mousemove", "mouseup", "mouseover", "mouseout"],
+      register: function (a) {
+        u.listen(a, this.events)
+      },
+      unregister: function (a) {
+        u.unlisten(a, this.events)
+      },
+      lastTouches: [],
+      isEventSimulatedFromTouch: function (a) {
+        for (var b, c = this.lastTouches, d = a.clientX, e = a.clientY, f = 0, g = c.length; f < g && (b = c[f]); f++) {
+          var h = Math.abs(d - b.x),
+            i = Math.abs(e - b.y);
+          if (h <= I && i <= I) return !0
+        }
+      },
+      prepareEvent: function (a) {
+        var b = u.cloneEvent(a),
+          c = b.preventDefault;
+        return b.preventDefault = function () {
+          a.preventDefault(), c()
+        }, b.pointerId = this.POINTER_ID, b.isPrimary = !0, b.pointerType = this.POINTER_TYPE, b
+      },
+      prepareButtonsForMove: function (a, b) {
+        var c = H.get(this.POINTER_ID);
+        0 !== b.which && c ? a.buttons = c.buttons : a.buttons = 0, b.buttons = a.buttons
+      },
+      mousedown: function (a) {
+        if (!this.isEventSimulatedFromTouch(a)) {
+          var b = H.get(this.POINTER_ID),
+            c = this.prepareEvent(a);
+          K || (c.buttons = J[c.button], b && (c.buttons |= b.buttons), a.buttons = c.buttons), H.set(this.POINTER_ID, a), b && 0 !== b.buttons ? u.move(c) : u.down(c)
+        }
+      },
+      mousemove: function (a) {
+        if (!this.isEventSimulatedFromTouch(a)) {
+          var b = this.prepareEvent(a);
+          K || this.prepareButtonsForMove(b, a), b.button = -1, H.set(this.POINTER_ID, a), u.move(b)
+        }
+      },
+      mouseup: function (a) {
+        if (!this.isEventSimulatedFromTouch(a)) {
+          var b = H.get(this.POINTER_ID),
+            c = this.prepareEvent(a);
+          if (!K) {
+            var d = J[c.button];
+            c.buttons = b ? b.buttons & ~d : 0, a.buttons = c.buttons
+          }
+          H.set(this.POINTER_ID, a),
+            c.buttons &= ~J[c.button], 0 === c.buttons ? u.up(c) : u.move(c)
+        }
+      },
+      mouseover: function (a) {
+        if (!this.isEventSimulatedFromTouch(a)) {
+          var b = this.prepareEvent(a);
+          K || this.prepareButtonsForMove(b, a), b.button = -1, H.set(this.POINTER_ID, a), u.enterOver(b)
+        }
+      },
+      mouseout: function (a) {
+        if (!this.isEventSimulatedFromTouch(a)) {
+          var b = this.prepareEvent(a);
+          K || this.prepareButtonsForMove(b, a), b.button = -1, u.leaveOut(b)
+        }
+      },
+      cancel: function (a) {
+        var b = this.prepareEvent(a);
+        u.cancel(b), this.deactivateMouse()
+      },
+      deactivateMouse: function () {
+        H["delete"](this.POINTER_ID)
+      }
+    },
+    O = u.captureInfo,
+    P = v.findTarget.bind(v),
+    Q = v.allShadows.bind(v),
+    R = u.pointermap,
+    S = 2500,
+    T = 200,
+    U = "touch-action",
+    V = {
+      events: ["touchstart", "touchmove", "touchend", "touchcancel"],
+      register: function (a) {
+        M.enableOnSubtree(a)
+      },
+      unregister: function () {},
+      elementAdded: function (a) {
+        var b = a.getAttribute(U),
+          c = this.touchActionToScrollType(b);
+        c && (a._scrollType = c, u.listen(a, this.events),
+          Q(a).forEach(function (a) {
+            a._scrollType = c, u.listen(a, this.events)
+          }, this))
+      },
+      elementRemoved: function (a) {
+        a._scrollType = void 0, u.unlisten(a, this.events),
+          Q(a).forEach(function (a) {
+            a._scrollType = void 0, u.unlisten(a, this.events)
+          }, this)
+      },
+      elementChanged: function (a, b) {
+        var c = a.getAttribute(U),
+          d = this.touchActionToScrollType(c),
+          e = this.touchActionToScrollType(b);
+        d && e ? (a._scrollType = d, Q(a).forEach(function (a) {
+          a._scrollType = d
+        }, this)) : e ? this.elementRemoved(a) : d && this.elementAdded(a)
+      },
+      scrollTypes: {
+        EMITTER: "none",
+        XSCROLLER: "pan-x",
+        YSCROLLER: "pan-y",
+        SCROLLER: /^(?:pan-x pan-y)|(?:pan-y pan-x)|auto$/
+      },
+      touchActionToScrollType: function (a) {
+        var b = a,
+          c = this.scrollTypes;
+        return "none" === b ? "none" : b === c.XSCROLLER ? "X" : b === c.YSCROLLER ? "Y" : c.SCROLLER.exec(b) ? "XY" : void 0
+      },
+      POINTER_TYPE: "touch",
+      firstTouch: null,
+      isPrimaryTouch: function (a) {
+        return this.firstTouch === a.identifier
+      },
+      setPrimaryTouch: function (a) {
+        (0 === R.size || 1 === R.size && R.has(1)) && (this.firstTouch = a.identifier, this.firstXY = {
+          X: a.clientX,
+          Y: a.clientY
+        }, this.scrolling = !1, this.cancelResetClickCount())
+      },
+      removePrimaryPointer: function (a) {
+        a.isPrimary && (this.firstTouch = null, this.firstXY = null, this.resetClickCount())
+      },
+      clickCount: 0,
+      resetId: null,
+      resetClickCount: function () {
+        var a = function () {
+          this.clickCount = 0, this.resetId = null
+        }.bind(this);
+        this.resetId = setTimeout(a, T)
+      },
+      cancelResetClickCount: function () {
+        this.resetId && clearTimeout(this.resetId)
+      },
+      typeToButtons: function (a) {
+        var b = 0;
+        return "touchstart" !== a && "touchmove" !== a || (b = 1), b
+      },
+      touchToPointer: function (a) {
+        var b = this.currentTouchEvent,
+          c = u.cloneEvent(a),
+          d = c.pointerId = a.identifier + 2;
+        c.target = O[d] || P(c), c.bubbles = !0, c.cancelable = !0, c.detail = this.clickCount, c.button = 0, c.buttons = this.typeToButtons(b.type), c.width = 2 * (a.radiusX || a.webkitRadiusX || 0), c.height = 2 * (a.radiusY || a.webkitRadiusY || 0), c.pressure = a.force || a.webkitForce || .5, c.isPrimary = this.isPrimaryTouch(a), c.pointerType = this.POINTER_TYPE,
+          c.altKey = b.altKey, c.ctrlKey = b.ctrlKey, c.metaKey = b.metaKey, c.shiftKey = b.shiftKey;
+        var e = this;
+        return c.preventDefault = function () {
+          e.scrolling = !1, e.firstXY = null, b.preventDefault()
+        }, c
+      },
+      processTouches: function (a, b) {
+        var c = a.changedTouches;
+        this.currentTouchEvent = a;
+        for (var d, e = 0; e < c.length; e++) d = c[e], b.call(this, this.touchToPointer(d))
+      },
+      shouldScroll: function (a) {
+        if (this.firstXY) {
+          var b, c = a.currentTarget._scrollType;
+          if ("none" === c)
+            b = !1;
+          else if ("XY" === c)
+            b = !0;
+          else {
+            var d = a.changedTouches[0],
+              e = c,
+              f = "Y" === c ? "X" : "Y",
+              g = Math.abs(d["client" + e] - this.firstXY[e]),
+              h = Math.abs(d["client" + f] - this.firstXY[f]);
+            b = g >= h
+          }
+          return this.firstXY = null, b
+        }
+      },
+      findTouch: function (a, b) {
+        for (var c, d = 0, e = a.length; d < e && (c = a[d]); d++)
+          if (c.identifier === b) return !0
+      },
+      vacuumTouches: function (a) {
+        var b = a.touches;
+        if (R.size >= b.length) {
+          var c = [];
+          R.forEach(function (a, d) {
+            if (1 !== d && !this.findTouch(b, d - 2)) {
+              var e = a.out;
+              c.push(e)
+            }
+          }, this), c.forEach(this.cancelOut, this)
+        }
+      },
+      touchstart: function (a) {
+        this.vacuumTouches(a), this.setPrimaryTouch(a.changedTouches[0]), this.dedupSynthMouse(a), this.scrolling || (this.clickCount++, this.processTouches(a, this.overDown))
+      },
+      overDown: function (a) {
+        R.set(a.pointerId, {
+          target: a.target,
+          out: a,
+          outTarget: a.target
+        }), u.enterOver(a), u.down(a)
+      },
+      touchmove: function (a) {
+        this.scrolling || (this.shouldScroll(a) ? (this.scrolling = !0, this.touchcancel(a)) : (a.preventDefault(), this.processTouches(a, this.moveOverOut)))
+      },
+      moveOverOut: function (a) {
+        var b = a,
+          c = R.get(b.pointerId);
+        if (c) {
+          var d = c.out,
+            e = c.outTarget;
+          u.move(b), d && e !== b.target && (d.relatedTarget = b.target, b.relatedTarget = e,
+            d.target = e, b.target ? (u.leaveOut(d), u.enterOver(b)) : (
+              b.target = e, b.relatedTarget = null, this.cancelOut(b))), c.out = b, c.outTarget = b.target
+        }
+      },
+      touchend: function (a) {
+        this.dedupSynthMouse(a), this.processTouches(a, this.upOut)
+      },
+      upOut: function (a) {
+        this.scrolling || (u.up(a), u.leaveOut(a)), this.cleanUpPointer(a)
+      },
+      touchcancel: function (a) {
+        this.processTouches(a, this.cancelOut)
+      },
+      cancelOut: function (a) {
+        u.cancel(a), u.leaveOut(a), this.cleanUpPointer(a)
+      },
+      cleanUpPointer: function (a) {
+        R["delete"](a.pointerId), this.removePrimaryPointer(a)
+      },
+      dedupSynthMouse: function (a) {
+        var b = N.lastTouches,
+          c = a.changedTouches[0];
+        if (this.isPrimaryTouch(c)) {
+          var d = {
+            x: c.clientX,
+            y: c.clientY
+          };
+          b.push(d);
+          var e = function (a, b) {
+            var c = a.indexOf(b);
+            c > -1 && a.splice(c, 1)
+          }.bind(null, b, d);
+          setTimeout(e, S)
+        }
+      }
+    };
+  M = new c(V.elementAdded, V.elementRemoved, V.elementChanged, V);
+  var W, X, Y, Z = u.pointermap,
+    $ = window.MSPointerEvent && "number" == typeof window.MSPointerEvent.MSPOINTER_TYPE_MOUSE,
+    _ = {
+      events: ["MSPointerDown", "MSPointerMove", "MSPointerUp", "MSPointerOut", "MSPointerOver", "MSPointerCancel", "MSGotPointerCapture", "MSLostPointerCapture"],
+      register: function (a) {
+        u.listen(a, this.events)
+      },
+      unregister: function (a) {
+        u.unlisten(a, this.events)
+      },
+      POINTER_TYPES: ["", "unavailable", "touch", "pen", "mouse"],
+      prepareEvent: function (a) {
+        var b = a;
+        return $ && (b = u.cloneEvent(a), b.pointerType = this.POINTER_TYPES[a.pointerType]), b
+      },
+      cleanup: function (a) {
+        Z["delete"](a)
+      },
+      MSPointerDown: function (a) {
+        Z.set(a.pointerId, a);
+        var b = this.prepareEvent(a);
+        u.down(b)
+      },
+      MSPointerMove: function (a) {
+        var b = this.prepareEvent(a);
+        u.move(b)
+      },
+      MSPointerUp: function (a) {
+        var b = this.prepareEvent(a);
+        u.up(b), this.cleanup(a.pointerId)
+      },
+      MSPointerOut: function (a) {
+        var b = this.prepareEvent(a);
+        u.leaveOut(b)
+      },
+      MSPointerOver: function (a) {
+        var b = this.prepareEvent(a);
+        u.enterOver(b)
+      },
+      MSPointerCancel: function (a) {
+        var b = this.prepareEvent(a);
+        u.cancel(b), this.cleanup(a.pointerId)
+      },
+      MSLostPointerCapture: function (a) {
+        var b = u.makeEvent("lostpointercapture", a);
+        u.dispatchEvent(b)
+      },
+      MSGotPointerCapture: function (a) {
+        var b = u.makeEvent("gotpointercapture", a);
+        u.dispatchEvent(b)
+      }
+    },
+    aa = window.navigator;
+  aa.msPointerEnabled ? (W = function (a) {
+    i(a), j(this), k(a) && (u.setCapture(a, this, !0), this.msSetPointerCapture(a))
+  }, X = function (a) {
+    i(a), u.releaseCapture(a, !0), this.msReleasePointerCapture(a)
+  }) : (W = function (a) {
+    i(a), j(this), k(a) && u.setCapture(a, this)
+  }, X = function (a) {
+    i(a), u.releaseCapture(a)
+  }), Y = function (a) {
+    return !!u.captureInfo[a]
+  }, g(), h(), l();
+  var ba = {
+    dispatcher: u,
+    Installer: c,
+    PointerEvent: a,
+    PointerMap: p,
+    targetFinding: v
+  };
+  return ba
+});
+///////////////////////////////////////////////
+
+///////////////////////////////////////////////
+var config = {"show_fabrication":false,"redraw_on_drag":true,"highlight_pin1":false,"extra_fields":["BOM_Manufacturer","BOM_Manufacturer Part","BOM_Supplier","BOM_Supplier Part"],"dark_mode":false,"bom_view":"left-right","board_rotation":0,"checkboxes":"Sourced,Placed","show_silkscreen":true,"show_pads":true,"layer_view":"FB"};
+///////////////////////////////////////////////
+
+///////////////////////////////////////////////
+var pcbdata = {"ibom_version":"v2.3-50-g53ae\n","edges_bbox":{"minx":4091,"miny":3088.5,"maxx":4178,"maxy":3171},"edges":[{"type":"circle","start":[4134.5,3130],"radius":12.5984,"width":0.5},{"type":"circle","start":[4116.651,3148.063],"radius":1.378,"width":0.5},{"type":"circle","start":[4112.349,3142.936],"radius":1.378,"width":0.5},{"type":"circle","start":[4152.849,3110.937],"radius":1.378,"width":0.5},{"type":"circle","start":[4157.151,3116.064],"radius":1.378,"width":0.5},{"type":"circle","start":[4157.151,3143.937],"radius":1.378,"width":0.5},{"type":"circle","start":[4152.849,3149.064],"radius":1.378,"width":0.5},{"type":"circle","start":[4111.849,3116.563],"radius":1.378,"width":0.5},{"type":"circle","start":[4116.151,3111.436],"radius":1.378,"width":0.5}],"drawings":{"silkscreen":{"F":[{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4145.497,3137.6974 4148.2834,3134.3767"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4150.021,3141.4934 4152.8074,3138.1728"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4143.9926,3139.5217 4141.208,3142.8402"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4148.5165,3143.3177 4145.7319,3146.6362"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4145.7166,3146.6233 4141.1935,3142.8262"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4152.8048,3138.1758 4148.2809,3134.3798"},{"type":"text","svgpath":"M 4153.2454 3167.4 L 4156.3154 3167.4 L 4156.9254 3167.2 L 4157.3354 3166.79 L 4157.5454 3166.17 L 4157.5454 3165.76 L 4157.3354 3165.15 L 4156.9254 3164.74 L 4156.3154 3164.54 L 4153.2454 3164.54 M 4153.2454 3163.19 L 4157.5454 3163.19 M 4153.2454 3163.19 L 4153.2454 3161.35 L 4153.4454 3160.73 L 4153.6554 3160.53 L 4154.0654 3160.32 L 4154.6754 3160.32 L 4155.0854 3160.53 L 4155.2954 3160.73 L 4155.4954 3161.35 L 4155.4954 3163.19","thickness":0.6,"width":0.6,"val":1},{"type":"text","svgpath":"M 4138.4656 3142.2534 L 4138.7406 3142.3145 L 4139.2696 3142.2754 L 4137.579 3144.29 M 4140.4722 3143.2845 L 4140.1117 3143.1386 L 4139.6759 3143.269 L 4139.1714 3143.6681 L 4138.9335 3143.9515 L 4138.6282 3144.5177 L 4138.5818 3144.9618 L 4138.7817 3145.2992 L 4138.9809 3145.4664 L 4139.3479 3145.6046 L 4139.7772 3145.4819 L 4140.2818 3145.0828 L 4140.5196 3144.7994 L 4140.825 3144.2332 L 4140.8777 3143.7814 L 4140.6714 3143.4517 L 4140.4722 3143.2845 M 4141.8741 3144.4608 L 4140.1836 3146.4755 M 4143.2223 3145.5921 L 4140.7492 3145.8014 M 4141.6304 3145.7314 L 4141.5318 3147.6068","thickness":0.3937,"width":0.3937,"ref":1},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4144.479,3120.9935 4141.6926,3117.6728"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4149.0029,3117.1974 4146.2166,3113.8767"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4146.0143,3122.7919 4148.7988,3126.1104"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4150.5382,3118.9958 4153.3228,3122.3143"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4153.3074,3122.3272 4148.7825,3126.1222"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4146.2191,3113.8798 4141.6952,3117.6758"},{"type":"text","svgpath":"M 4163.8724 3114.583 L 4168.1724 3114.583 M 4168.1724 3114.583 L 4168.1724 3112.133 M 4163.8724 3110.783 L 4168.1724 3110.783 M 4163.8724 3110.783 L 4163.8724 3108.123 M 4165.9224 3110.783 L 4165.9224 3109.143 M 4168.1724 3110.783 L 4168.1724 3108.123 M 4163.8724 3106.773 L 4168.1724 3106.773 M 4163.8724 3106.773 L 4163.8724 3104.113 M 4165.9224 3106.773 L 4165.9224 3105.133 M 4163.8724 3101.333 L 4168.1724 3101.333 M 4163.8724 3102.763 L 4163.8724 3099.893","thickness":0.6,"width":0.6,"val":1},{"type":"text","svgpath":"M 4138.5344 3115.2534L4138.6424 3114.9931 L4138.6957 3114.4654 L4140.3862 3116.4801 M 4140.4805 3112.9677L4139.5153 3113.7777 L4140.1498 3114.7204 L4140.1581 3114.5437 L4140.3721 3114.2075 L4140.6632 3113.9633 L4141.0237 3113.8174 L4141.376 3113.8482 L4141.7198 3114.0557 L4141.8805 3114.2472 L4142.0187 3114.6142 L4141.9879 3114.9664 L4141.7881 3115.3038 L4141.497 3115.5481 L4141.1223 3115.6928 L4140.9532 3115.678 L4140.693 3115.57 M 4141.3002 3112.28L4142.9907 3114.2947 M 4142.6484 3111.1487L4142.4251 3113.6205 M 4142.5092 3112.7406L4144.339 3113.1634 ","thickness":0.3937,"width":0.3937,"ref":1},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4123.003,3122.8026 4120.2166,3126.1233"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4118.479,3119.0066 4115.6926,3122.3272"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4124.5074,3120.9783 4127.292,3117.6598"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4119.9835,3117.1823 4122.7681,3113.8638"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4122.7834,3113.8767 4127.3065,3117.6738"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4115.6952,3122.3242 4120.2191,3126.1202"},{"type":"text","svgpath":"M 4111.5744 3107.611 L 4115.8644 3107.611 M 4111.5744 3107.611 L 4111.5744 3105.771 L 4111.7744 3105.151 L 4111.9844 3104.951 L 4112.3844 3104.741 L 4112.7944 3104.741 L 4113.2044 3104.951 L 4113.4144 3105.151 L 4113.6144 3105.771 L 4113.6144 3107.611 M 4113.6144 3106.171 L 4115.8644 3104.741 M 4111.5744 3103.391 L 4115.8644 3103.391 M 4112.5944 3098.971 L 4112.1844 3099.181 L 4111.7744 3099.591 L 4111.5744 3100.001 L 4111.5744 3100.821 L 4111.7744 3101.221 L 4112.1844 3101.631 L 4112.5944 3101.841 L 4113.2044 3102.041 L 4114.2344 3102.041 L 4114.8444 3101.841 L 4115.2544 3101.631 L 4115.6644 3101.221 L 4115.8644 3100.821 L 4115.8644 3100.001 L 4115.6644 3099.591 L 4115.2544 3099.181 L 4114.8444 3098.971 L 4114.2344 3098.971 M 4114.2344 3100.001 L 4114.2344 3098.971 M 4111.5744 3097.621 L 4115.8644 3097.621 M 4111.5744 3094.761 L 4115.8644 3094.761 M 4113.6144 3097.621 L 4113.6144 3094.761 M 4111.5744 3091.981 L 4115.8644 3091.981 M 4111.5744 3093.411 L 4111.5744 3090.551","thickness":0.6,"width":0.6,"val":1},{"type":"text","svgpath":"M 4126.4785 3111.5311 L 4127.5356 3112.4181 L 4126.3183 3112.7021 L 4126.6017 3112.9399 L 4126.7097 3113.2002 L 4126.7321 3113.3757 L 4126.5798 3113.7439 L 4126.4191 3113.9354 L 4126.0893 3114.1417 L 4125.7371 3114.1726 L 4125.3625 3114.0279 L 4125.079 3113.79 L 4124.8715 3113.4462 L 4124.8567 3113.2771 L 4124.9178 3113.0021 M 4128.2633 3113.0288 L 4126.5728 3115.0435 M 4129.6039 3114.1537 L 4127.1385 3114.3694 M 4128.0196 3114.2994 L 4127.9134 3116.1684 M 4130.4312 3114.8479 L 4131.4884 3115.7349 L 4130.2711 3116.0189 L 4130.5545 3116.2567 L 4130.6625 3116.517 L 4130.6849 3116.6925 L 4130.5326 3117.0607 L 4130.3719 3117.2522 L 4130.0421 3117.4585 L 4129.6899 3117.4893 L 4129.3153 3117.3447 L 4129.0318 3117.1068 L 4128.8243 3116.763 L 4128.8095 3116.5939 L 4128.8706 3116.3189","thickness":0.3937,"width":0.3937,"ref":1},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4125.021,3139.0065 4127.8074,3142.3272"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4120.4971,3142.8026 4123.2834,3146.1233"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4123.4857,3137.2081 4120.7012,3133.8896"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4118.9618,3141.0042 4116.1772,3137.6857"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4116.1926,3137.6728 4120.7175,3133.8778"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4123.2809,3146.1202 4127.8048,3142.3242"},{"type":"text","svgpath":"M 4097.5314 3150.988 L 4101.8214 3150.988 M 4097.5314 3150.988 L 4097.5314 3149.558 L 4097.7314 3148.938 L 4098.1414 3148.528 L 4098.5514 3148.328 L 4099.1614 3148.128 L 4100.1914 3148.128 L 4100.8014 3148.328 L 4101.2114 3148.528 L 4101.6214 3148.938 L 4101.8214 3149.558 L 4101.8214 3150.988 M 4097.5314 3145.548 L 4097.7314 3145.958 L 4098.1414 3146.368 L 4098.5514 3146.568 L 4099.1614 3146.778 L 4100.1914 3146.778 L 4100.8014 3146.568 L 4101.2114 3146.368 L 4101.6214 3145.958 L 4101.8214 3145.548 L 4101.8214 3144.728 L 4101.6214 3144.318 L 4101.2114 3143.908 L 4100.8014 3143.708 L 4100.1914 3143.498 L 4099.1614 3143.498 L 4098.5514 3143.708 L 4098.1414 3143.908 L 4097.7314 3144.318 L 4097.5314 3144.728 L 4097.5314 3145.548 M 4097.5314 3142.148 L 4101.8214 3141.128 M 4097.5314 3140.108 L 4101.8214 3141.128 M 4097.5314 3140.108 L 4101.8214 3139.078 M 4097.5314 3138.058 L 4101.8214 3139.078 M 4097.5314 3136.708 L 4101.8214 3136.708 M 4097.5314 3136.708 L 4101.8214 3133.848 M 4097.5314 3133.848 L 4101.8214 3133.848","thickness":0.6,"width":0.6,"val":1},{"type":"text","svgpath":"M 4125.1706 3145.5669 L 4125.3379 3147.711 L 4126.7781 3146.5025 M 4125.1706 3145.5669 L 4126.8611 3147.5816 M 4126.289 3144.6284 L 4127.9796 3146.6431 M 4127.6296 3143.5036 L 4127.4139 3145.969 M 4127.4903 3145.0955 L 4129.3201 3145.5183 M 4129.606 3141.8452 L 4130.339 3144.6634 M 4128.2654 3142.97 L 4129.606 3141.8452","thickness":0.3937,"width":0.3937,"ref":1},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4113.067,3135.2357 4112.2854,3134.3042 4108.4551,3137.5182"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4121.6712,3145.4899 4115.7553,3138.4395"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4121.3109,3152.8391 4125.1411,3149.6251 4124.3595,3148.6936"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4105.4851,3147.925 4109.1042,3144.8882"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4110.5464,3153.9569 4114.1655,3150.9201"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4105.4851,3147.925 4110.5464,3153.9569"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4111.6348,3147.9042 4108.0995,3143.6909"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4111.6348,3147.9042 4115.099,3152.0326"},{"type":"text","svgpath":"M 4077.1628 3165.4679 L 4079.2028 3163.8279 L 4081.4528 3163.8279 M 4077.1628 3162.1979 L 4079.2028 3163.8279 M 4077.1628 3159.4179 L 4081.4528 3159.4179 M 4077.1628 3160.8479 L 4077.1628 3157.9779 M 4077.7728 3153.7679 L 4077.3628 3154.1779 L 4077.1628 3154.7879 L 4077.1628 3155.6079 L 4077.3628 3156.2179 L 4077.7728 3156.6279 L 4078.1828 3156.6279 L 4078.5928 3156.4279 L 4078.8028 3156.2179 L 4079.0028 3155.8179 L 4079.4128 3154.5879 L 4079.6128 3154.1779 L 4079.8228 3153.9679 L 4080.2328 3153.7679 L 4080.8428 3153.7679 L 4081.2528 3154.1779 L 4081.4528 3154.7879 L 4081.4528 3155.6079 L 4081.2528 3156.2179 L 4080.8428 3156.6279 M 4077.1628 3150.7779 L 4081.4528 3152.4179 M 4077.1628 3150.7779 L 4081.4528 3149.1479 M 4080.0228 3151.8079 L 4080.0228 3149.7579 M 4077.1628 3146.5679 L 4077.3628 3147.1779 L 4077.9828 3147.5879 L 4079.0028 3147.7979 L 4079.6128 3147.7979 L 4080.6428 3147.5879 L 4081.2528 3147.1779 L 4081.4528 3146.5679 L 4081.4528 3146.1579 L 4081.2528 3145.5479 L 4080.6428 3145.1379 L 4079.6128 3144.9279 L 4079.0028 3144.9279 L 4077.9828 3145.1379 L 4077.3628 3145.5479 L 4077.1628 3146.1579 L 4077.1628 3146.5679 M 4077.1628 3142.3579 L 4077.3628 3142.9679 L 4077.9828 3143.3779 L 4079.0028 3143.5779 L 4079.6128 3143.5779 L 4080.6428 3143.3779 L 4081.2528 3142.9679 L 4081.4528 3142.3579 L 4081.4528 3141.9479 L 4081.2528 3141.3279 L 4080.6428 3140.9179 L 4079.6128 3140.7179 L 4079.0028 3140.7179 L 4077.9828 3140.9179 L 4077.3628 3141.3279 L 4077.1628 3141.9479 L 4077.1628 3142.3579 M 4078.1828 3139.1679 L 4077.9828 3139.1679 L 4077.5728 3138.9579 L 4077.3628 3138.7579 L 4077.1628 3138.3479 L 4077.1628 3137.5279 L 4077.3628 3137.1179 L 4077.5728 3136.9179 L 4077.9828 3136.7079 L 4078.3928 3136.7079 L 4078.8028 3136.9179 L 4079.4128 3137.3179 L 4081.4528 3139.3679 L 4081.4528 3136.5079 M 4077.1628 3133.5179 L 4081.4528 3135.1579 M 4077.1628 3133.5179 L 4081.4528 3131.8779 M 4080.0228 3134.5379 L 4080.0228 3132.4979 M 4077.1628 3129.3079 L 4077.3628 3129.9179 L 4077.9828 3130.3279 L 4079.0028 3130.5279 L 4079.6128 3130.5279 L 4080.6428 3130.3279 L 4081.2528 3129.9179 L 4081.4528 3129.3079 L 4081.4528 3128.8979 L 4081.2528 3128.2779 L 4080.6428 3127.8679 L 4079.6128 3127.6679 L 4079.0028 3127.6679 L 4077.9828 3127.8679 L 4077.3628 3128.2779 L 4077.1628 3128.8979 L 4077.1628 3129.3079 M 4077.1628 3125.9079 L 4077.1628 3123.6579 L 4078.8028 3124.8879 L 4078.8028 3124.2679 L 4079.0028 3123.8679 L 4079.2028 3123.6579 L 4079.8228 3123.4579 L 4080.2328 3123.4579 L 4080.8428 3123.6579 L 4081.2528 3124.0679 L 4081.4528 3124.6779 L 4081.4528 3125.2979 L 4081.2528 3125.9079 L 4081.0528 3126.1179 L 4080.6428 3126.3179 M 4078.1828 3121.8979 L 4077.9828 3121.8979 L 4077.5728 3121.6979 L 4077.3628 3121.4879 L 4077.1628 3121.0779 L 4077.1628 3120.2679 L 4077.3628 3119.8579 L 4077.5728 3119.6479 L 4077.9828 3119.4479 L 4078.3928 3119.4479 L 4078.8028 3119.6479 L 4079.4128 3120.0579 L 4081.4528 3122.1079 L 4081.4528 3119.2379 M 4078.1828 3117.6879 L 4077.9828 3117.6879 L 4077.5728 3117.4779 L 4077.3628 3117.2779 L 4077.1628 3116.8679 L 4077.1628 3116.0479 L 4077.3628 3115.6379 L 4077.5728 3115.4379 L 4077.9828 3115.2279 L 4078.3928 3115.2279 L 4078.8028 3115.4379 L 4079.4128 3115.8479 L 4081.4528 3117.8879 L 4081.4528 3115.0279 M 4077.1628 3111.2179 L 4077.1628 3113.2679 L 4079.0028 3113.4679 L 4078.8028 3113.2679 L 4078.5928 3112.6579 L 4078.5928 3112.0379 L 4078.8028 3111.4279 L 4079.2028 3111.0179 L 4079.8228 3110.8179 L 4080.2328 3110.8179 L 4080.8428 3111.0179 L 4081.2528 3111.4279 L 4081.4528 3112.0379 L 4081.4528 3112.6579 L 4081.2528 3113.2679 L 4081.0528 3113.4679 L 4080.6428 3113.6779 M 4077.1628 3108.2379 L 4077.3628 3108.8479 L 4077.9828 3109.2579 L 4079.0028 3109.4679 L 4079.6128 3109.4679 L 4080.6428 3109.2579 L 4081.2528 3108.8479 L 4081.4528 3108.2379 L 4081.4528 3107.8279 L 4081.2528 3107.2179 L 4080.6428 3106.8079 L 4079.6128 3106.5979 L 4079.0028 3106.5979 L 4077.9828 3106.8079 L 4077.3628 3107.2179 L 4077.1628 3107.8279 L 4077.1628 3108.2379 M 4077.9828 3105.2479 L 4077.7728 3104.8379 L 4077.1628 3104.2279 L 4081.4528 3104.2279 M 4077.1628 3102.8779 L 4081.4528 3102.8779 M 4077.1628 3102.8779 L 4077.1628 3101.0379 L 4077.3628 3100.4179 L 4077.5728 3100.2179 L 4077.9828 3100.0179 L 4078.3928 3100.0179 L 4078.8028 3100.2179 L 4079.0028 3100.4179 L 4079.2028 3101.0379 M 4079.2028 3102.8779 L 4079.2028 3101.0379 L 4079.4128 3100.4179 L 4079.6128 3100.2179 L 4080.0228 3100.0179 L 4080.6428 3100.0179 L 4081.0528 3100.2179 L 4081.2528 3100.4179 L 4081.4528 3101.0379 L 4081.4528 3102.8779","thickness":0.6,"width":0.6,"val":1},{"type":"text","svgpath":"M 4117.529 3145.2085 L 4117.4981 3145.5607 L 4117.644 3145.9213 L 4117.9654 3146.3043 L 4118.3016 3146.5183 L 4118.6538 3146.5491 L 4118.853 3146.382 L 4118.961 3146.1217 L 4118.9757 3145.9527 L 4118.9146 3145.6776 L 4118.6241 3144.9423 L 4118.5553 3144.6737 L 4118.5713 3144.4906 L 4118.6857 3144.2379 L 4118.9691 3144.0001 L 4119.3213 3144.0309 L 4119.6587 3144.2308 L 4119.9801 3144.6138 L 4120.1248 3144.9885 L 4120.094 3145.3407 M 4116.712 3144.8106 L 4118.3217 3142.6374 M 4115.9085 3143.853 L 4118.3217 3142.6374 M 4115.9085 3143.853 L 4117.5183 3141.6799 M 4115.0986 3142.8878 L 4117.5183 3141.6799 M 4113.7616 3141.2944 L 4115.9121 3141.1347 L 4114.7037 3139.6946 M 4113.7616 3141.2944 L 4115.7763 3139.6039","thickness":0.3937,"width":0.3937,"ref":1},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4126.626,3148.2913 4142.374,3148.2913"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4126.626,3159.7087 4142.374,3159.7087"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4126.626,3148.2913 4126.626,3149.153"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4126.626,3158.847 4126.626,3159.7087"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4142.374,3148.2913 4142.374,3149.153"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4142.374,3158.847 4142.374,3159.7087"},{"type":"circle","_svgpath":"M 4134.5, 3154 m -3.347, 0 a 3.347,3.347 0 1,0 6.694,0 a 3.347,3.347 0 1,0 -6.694,0","start":[4134.5,3154],"radius":3.347,"width":"1"},{"type":"text","svgpath":"M 4137.3519 3135.0948 L 4136.9419 3134.6848 L 4136.3319 3134.4848 L 4135.5119 3134.4848 L 4134.9019 3134.6848 L 4134.4919 3135.0948 L 4134.4919 3135.5048 L 4134.6919 3135.9148 L 4134.9019 3136.1248 L 4135.3119 3136.3248 L 4136.5419 3136.7348 L 4136.9419 3136.9348 L 4137.1519 3137.1448 L 4137.3519 3137.5548 L 4137.3519 3138.1648 L 4136.9419 3138.5748 L 4136.3319 3138.7748 L 4135.5119 3138.7748 L 4134.9019 3138.5748 L 4134.4919 3138.1648 M 4138.7019 3134.4848 L 4138.7019 3138.7748 M 4141.5719 3134.4848 L 4138.7019 3137.3448 M 4139.7319 3136.3248 L 4141.5719 3138.7748 M 4142.9219 3134.4848 L 4142.9219 3138.7748 M 4142.9219 3134.4848 L 4144.7619 3134.4848 L 4145.3719 3134.6848 L 4145.5819 3134.8948 L 4145.7819 3135.3048 L 4145.7819 3135.7148 L 4145.5819 3136.1248 L 4145.3719 3136.3248 L 4144.7619 3136.5248 L 4142.9219 3136.5248 M 4144.3519 3136.5248 L 4145.7819 3138.7748 M 4147.1319 3134.4848 L 4147.1319 3138.7748 M 4149.9919 3134.4848 L 4147.1319 3137.3448 M 4148.1519 3136.3248 L 4149.9919 3138.7748 M 4152.9819 3134.4848 L 4151.3419 3138.7748 M 4152.9819 3134.4848 L 4154.6219 3138.7748 M 4151.9619 3137.3448 L 4154.0019 3137.3448 M 4155.9719 3134.4848 L 4155.9719 3138.7748 M 4155.9719 3134.4848 L 4158.6319 3134.4848 M 4155.9719 3136.5248 L 4157.6019 3136.5248 M 4155.9719 3138.7748 L 4158.6319 3138.7748 M 4159.9819 3134.4848 L 4159.9819 3138.7748 M 4159.9819 3134.4848 L 4162.6419 3134.4848 M 4159.9819 3136.5248 L 4161.6119 3136.5248 M 4159.9819 3138.7748 L 4162.6419 3138.7748 M 4165.2119 3134.4848 L 4164.6019 3134.6848 L 4164.1919 3135.3048 L 4163.9919 3136.3248 L 4163.9919 3136.9348 L 4164.1919 3137.9648 L 4164.6019 3138.5748 L 4165.2119 3138.7748 L 4165.6219 3138.7748 L 4166.2419 3138.5748 L 4166.6419 3137.9648 L 4166.8519 3136.9348 L 4166.8519 3136.3248 L 4166.6419 3135.3048 L 4166.2419 3134.6848 L 4165.6219 3134.4848 L 4165.2119 3134.4848 M 4168.4019 3135.5048 L 4168.4019 3135.3048 L 4168.6119 3134.8948 L 4168.8119 3134.6848 L 4169.2219 3134.4848 L 4170.0419 3134.4848 L 4170.4519 3134.6848 L 4170.6519 3134.8948 L 4170.8619 3135.3048 L 4170.8619 3135.7148 L 4170.6519 3136.1248 L 4170.2419 3136.7348 L 4168.2019 3138.7748 L 4171.0619 3138.7748 M 4173.6419 3134.4848 L 4173.0319 3134.6848 L 4172.6219 3135.3048 L 4172.4119 3136.3248 L 4172.4119 3136.9348 L 4172.6219 3137.9648 L 4173.0319 3138.5748 L 4173.6419 3138.7748 L 4174.0519 3138.7748 L 4174.6619 3138.5748 L 4175.0719 3137.9648 L 4175.2819 3136.9348 L 4175.2819 3136.3248 L 4175.0719 3135.3048 L 4174.6619 3134.6848 L 4174.0519 3134.4848 L 4173.6419 3134.4848","thickness":0.6,"width":0.6,"val":1},{"type":"text","svgpath":"M 4132.75 3153.09 L 4132.5 3152.84 L 4132.13 3152.72 L 4131.63 3152.72 L 4131.25 3152.84 L 4131 3153.09 L 4131 3153.35 L 4131.13 3153.6 L 4131.25 3153.72 L 4131.5 3153.85 L 4132.25 3154.1 L 4132.5 3154.22 L 4132.63 3154.35 L 4132.75 3154.6 L 4132.75 3154.97 L 4132.5 3155.22 L 4132.13 3155.35 L 4131.63 3155.35 L 4131.25 3155.22 L 4131 3154.97 M 4133.58 3152.72 L 4134.21 3155.35 M 4134.83 3152.72 L 4134.21 3155.35 M 4134.83 3152.72 L 4135.46 3155.35 M 4136.09 3152.72 L 4135.46 3155.35 M 4136.91 3153.22 L 4137.16 3153.09 L 4137.54 3152.72 L 4137.54 3155.35","thickness":0.3937,"width":0.3937,"ref":1},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4156.433,3123.7643 4157.2147,3124.6958 4161.0449,3121.4819"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4147.8288,3113.5101 4153.7448,3120.5605"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4148.1891,3106.1609 4144.3589,3109.3748 4145.1405,3110.3064"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4164.0149,3111.0749 4160.3958,3114.1117"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4158.9537,3105.0432 4155.3345,3108.08"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4164.0149,3111.0749 4158.9537,3105.0432"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4157.8652,3111.0958 4161.4005,3115.3091"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4157.8652,3111.0958 4154.401,3106.9674"},{"type":"text","svgpath":"M 4188.6729 3158.7136 L 4190.7129 3157.0736 L 4192.9629 3157.0736 M 4188.6729 3155.4436 L 4190.7129 3157.0736 M 4188.6729 3152.6636 L 4192.9629 3152.6636 M 4188.6729 3154.0936 L 4188.6729 3151.2236 M 4189.2829 3147.0136 L 4188.8729 3147.4236 L 4188.6729 3148.0336 L 4188.6729 3148.8536 L 4188.8729 3149.4636 L 4189.2829 3149.8736 L 4189.6929 3149.8736 L 4190.1029 3149.6736 L 4190.3129 3149.4636 L 4190.5129 3149.0636 L 4190.9229 3147.8336 L 4191.1229 3147.4236 L 4191.3329 3147.2136 L 4191.7429 3147.0136 L 4192.3529 3147.0136 L 4192.7629 3147.4236 L 4192.9629 3148.0336 L 4192.9629 3148.8536 L 4192.7629 3149.4636 L 4192.3529 3149.8736 M 4188.6729 3144.0236 L 4192.9629 3145.6636 M 4188.6729 3144.0236 L 4192.9629 3142.3936 M 4191.5329 3145.0536 L 4191.5329 3143.0036 M 4188.6729 3139.8136 L 4188.8729 3140.4236 L 4189.4929 3140.8336 L 4190.5129 3141.0436 L 4191.1229 3141.0436 L 4192.1529 3140.8336 L 4192.7629 3140.4236 L 4192.9629 3139.8136 L 4192.9629 3139.4036 L 4192.7629 3138.7936 L 4192.1529 3138.3836 L 4191.1229 3138.1736 L 4190.5129 3138.1736 L 4189.4929 3138.3836 L 4188.8729 3138.7936 L 4188.6729 3139.4036 L 4188.6729 3139.8136 M 4188.6729 3135.6036 L 4188.8729 3136.2136 L 4189.4929 3136.6236 L 4190.5129 3136.8236 L 4191.1229 3136.8236 L 4192.1529 3136.6236 L 4192.7629 3136.2136 L 4192.9629 3135.6036 L 4192.9629 3135.1936 L 4192.7629 3134.5736 L 4192.1529 3134.1636 L 4191.1229 3133.9636 L 4190.5129 3133.9636 L 4189.4929 3134.1636 L 4188.8729 3134.5736 L 4188.6729 3135.1936 L 4188.6729 3135.6036 M 4189.6929 3132.4136 L 4189.4929 3132.4136 L 4189.0829 3132.2036 L 4188.8729 3132.0036 L 4188.6729 3131.5936 L 4188.6729 3130.7736 L 4188.8729 3130.3636 L 4189.0829 3130.1636 L 4189.4929 3129.9536 L 4189.9029 3129.9536 L 4190.3129 3130.1636 L 4190.9229 3130.5636 L 4192.9629 3132.6136 L 4192.9629 3129.7536 M 4188.6729 3126.7636 L 4192.9629 3128.4036 M 4188.6729 3126.7636 L 4192.9629 3125.1236 M 4191.5329 3127.7836 L 4191.5329 3125.7436 M 4188.6729 3122.5536 L 4188.8729 3123.1636 L 4189.4929 3123.5736 L 4190.5129 3123.7736 L 4191.1229 3123.7736 L 4192.1529 3123.5736 L 4192.7629 3123.1636 L 4192.9629 3122.5536 L 4192.9629 3122.1436 L 4192.7629 3121.5236 L 4192.1529 3121.1136 L 4191.1229 3120.9136 L 4190.5129 3120.9136 L 4189.4929 3121.1136 L 4188.8729 3121.5236 L 4188.6729 3122.1436 L 4188.6729 3122.5536 M 4188.6729 3119.1536 L 4188.6729 3116.9036 L 4190.3129 3118.1336 L 4190.3129 3117.5136 L 4190.5129 3117.1136 L 4190.7129 3116.9036 L 4191.3329 3116.7036 L 4191.7429 3116.7036 L 4192.3529 3116.9036 L 4192.7629 3117.3136 L 4192.9629 3117.9236 L 4192.9629 3118.5436 L 4192.7629 3119.1536 L 4192.5629 3119.3636 L 4192.1529 3119.5636 M 4189.6929 3115.1436 L 4189.4929 3115.1436 L 4189.0829 3114.9436 L 4188.8729 3114.7336 L 4188.6729 3114.3236 L 4188.6729 3113.5136 L 4188.8729 3113.1036 L 4189.0829 3112.8936 L 4189.4929 3112.6936 L 4189.9029 3112.6936 L 4190.3129 3112.8936 L 4190.9229 3113.3036 L 4192.9629 3115.3536 L 4192.9629 3112.4836 M 4189.6929 3110.9336 L 4189.4929 3110.9336 L 4189.0829 3110.7236 L 4188.8729 3110.5236 L 4188.6729 3110.1136 L 4188.6729 3109.2936 L 4188.8729 3108.8836 L 4189.0829 3108.6836 L 4189.4929 3108.4736 L 4189.9029 3108.4736 L 4190.3129 3108.6836 L 4190.9229 3109.0936 L 4192.9629 3111.1336 L 4192.9629 3108.2736 M 4188.6729 3104.4636 L 4188.6729 3106.5136 L 4190.5129 3106.7136 L 4190.3129 3106.5136 L 4190.1029 3105.9036 L 4190.1029 3105.2836 L 4190.3129 3104.6736 L 4190.7129 3104.2636 L 4191.3329 3104.0636 L 4191.7429 3104.0636 L 4192.3529 3104.2636 L 4192.7629 3104.6736 L 4192.9629 3105.2836 L 4192.9629 3105.9036 L 4192.7629 3106.5136 L 4192.5629 3106.7136 L 4192.1529 3106.9236 M 4188.6729 3101.4836 L 4188.8729 3102.0936 L 4189.4929 3102.5036 L 4190.5129 3102.7136 L 4191.1229 3102.7136 L 4192.1529 3102.5036 L 4192.7629 3102.0936 L 4192.9629 3101.4836 L 4192.9629 3101.0736 L 4192.7629 3100.4636 L 4192.1529 3100.0536 L 4191.1229 3099.8436 L 4190.5129 3099.8436 L 4189.4929 3100.0536 L 4188.8729 3100.4636 L 4188.6729 3101.0736 L 4188.6729 3101.4836 M 4189.4929 3098.4936 L 4189.2829 3098.0836 L 4188.6729 3097.4736 L 4192.9629 3097.4736 M 4188.6729 3096.1236 L 4192.9629 3096.1236 M 4188.6729 3096.1236 L 4188.6729 3094.2836 L 4188.8729 3093.6636 L 4189.0829 3093.4636 L 4189.4929 3093.2636 L 4189.9029 3093.2636 L 4190.3129 3093.4636 L 4190.5129 3093.6636 L 4190.7129 3094.2836 M 4190.7129 3096.1236 L 4190.7129 3094.2836 L 4190.9229 3093.6636 L 4191.1229 3093.4636 L 4191.5329 3093.2636 L 4192.1529 3093.2636 L 4192.5629 3093.4636 L 4192.7629 3093.6636 L 4192.9629 3094.2836 L 4192.9629 3096.1236","thickness":0.6,"width":0.6,"val":1},{"type":"text","svgpath":"M 4151.471 3113.2915 L 4151.5019 3112.9393 L 4151.356 3112.5787 L 4151.0346 3112.1957 L 4150.6984 3111.9817 L 4150.3462 3111.9509 L 4150.147 3112.118 L 4150.039 3112.3783 L 4150.0243 3112.5473 L 4150.0854 3112.8224 L 4150.3759 3113.5577 L 4150.4447 3113.8263 L 4150.4287 3114.0094 L 4150.3143 3114.2621 L 4150.0309 3114.4999 L 4149.6787 3114.4691 L 4149.3413 3114.2692 L 4149.0199 3113.8862 L 4148.8752 3113.5115 L 4148.906 3113.1593 M 4152.288 3113.6894 L 4150.6783 3115.8626 M 4153.0915 3114.647 L 4150.6783 3115.8626 M 4153.0915 3114.647 L 4151.4817 3116.8201 M 4153.9014 3115.6122 L 4151.4817 3116.8201 M 4154.0294 3116.7449 L 4154.129 3116.6614 L 4154.3977 3116.5926 L 4154.5808 3116.6086 L 4154.8334 3116.723 L 4155.1548 3117.106 L 4155.2236 3117.3746 L 4155.2076 3117.5578 L 4155.0932 3117.8104 L 4154.9017 3117.9711 L 4154.633 3118.0399 L 4154.1812 3118.0926 L 4152.4138 3117.9309 L 4153.5451 3119.2791","thickness":0.3937,"width":0.3937,"ref":1},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4145.1405,3149.6936 4144.3589,3150.6251 4148.1891,3153.8391"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4153.7447,3139.4395 4147.8288,3146.4899"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4161.0449,3138.5182 4157.2146,3135.3042 4156.433,3136.2357"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4158.9536,3154.9569 4155.3345,3151.9201"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4164.0149,3148.925 4160.3958,3145.8882"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4158.9536,3154.9569 4164.0149,3148.925"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4157.8652,3148.9042 4154.3298,3153.1174"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4157.8652,3148.9042 4161.3293,3144.7757"},{"type":"text","svgpath":"M 4146.0455 3216.1511 L 4148.0855 3214.5111 L 4150.3355 3214.5111 M 4146.0455 3212.8811 L 4148.0855 3214.5111 M 4146.0455 3210.1011 L 4150.3355 3210.1011 M 4146.0455 3211.5311 L 4146.0455 3208.6611 M 4146.6555 3204.4511 L 4146.2455 3204.8611 L 4146.0455 3205.4711 L 4146.0455 3206.2911 L 4146.2455 3206.9011 L 4146.6555 3207.3111 L 4147.0655 3207.3111 L 4147.4755 3207.1111 L 4147.6855 3206.9011 L 4147.8855 3206.5011 L 4148.2955 3205.2711 L 4148.4955 3204.8611 L 4148.7055 3204.6511 L 4149.1155 3204.4511 L 4149.7255 3204.4511 L 4150.1355 3204.8611 L 4150.3355 3205.4711 L 4150.3355 3206.2911 L 4150.1355 3206.9011 L 4149.7255 3207.3111 M 4146.0455 3201.4611 L 4150.3355 3203.1011 M 4146.0455 3201.4611 L 4150.3355 3199.8311 M 4148.9055 3202.4911 L 4148.9055 3200.4411 M 4146.0455 3197.2511 L 4146.2455 3197.8611 L 4146.8655 3198.2711 L 4147.8855 3198.4811 L 4148.4955 3198.4811 L 4149.5255 3198.2711 L 4150.1355 3197.8611 L 4150.3355 3197.2511 L 4150.3355 3196.8411 L 4150.1355 3196.2311 L 4149.5255 3195.8211 L 4148.4955 3195.6111 L 4147.8855 3195.6111 L 4146.8655 3195.8211 L 4146.2455 3196.2311 L 4146.0455 3196.8411 L 4146.0455 3197.2511 M 4146.0455 3193.0411 L 4146.2455 3193.6511 L 4146.8655 3194.0611 L 4147.8855 3194.2611 L 4148.4955 3194.2611 L 4149.5255 3194.0611 L 4150.1355 3193.6511 L 4150.3355 3193.0411 L 4150.3355 3192.6311 L 4150.1355 3192.0111 L 4149.5255 3191.6011 L 4148.4955 3191.4011 L 4147.8855 3191.4011 L 4146.8655 3191.6011 L 4146.2455 3192.0111 L 4146.0455 3192.6311 L 4146.0455 3193.0411 M 4147.0655 3189.8511 L 4146.8655 3189.8511 L 4146.4555 3189.6411 L 4146.2455 3189.4411 L 4146.0455 3189.0311 L 4146.0455 3188.2111 L 4146.2455 3187.8011 L 4146.4555 3187.6011 L 4146.8655 3187.3911 L 4147.2755 3187.3911 L 4147.6855 3187.6011 L 4148.2955 3188.0011 L 4150.3355 3190.0511 L 4150.3355 3187.1911 M 4146.0455 3184.2011 L 4150.3355 3185.8411 M 4146.0455 3184.2011 L 4150.3355 3182.5611 M 4148.9055 3185.2211 L 4148.9055 3183.1811 M 4146.0455 3179.9911 L 4146.2455 3180.6011 L 4146.8655 3181.0111 L 4147.8855 3181.2111 L 4148.4955 3181.2111 L 4149.5255 3181.0111 L 4150.1355 3180.6011 L 4150.3355 3179.9911 L 4150.3355 3179.5811 L 4150.1355 3178.9611 L 4149.5255 3178.5511 L 4148.4955 3178.3511 L 4147.8855 3178.3511 L 4146.8655 3178.5511 L 4146.2455 3178.9611 L 4146.0455 3179.5811 L 4146.0455 3179.9911 M 4146.0455 3176.5911 L 4146.0455 3174.3411 L 4147.6855 3175.5711 L 4147.6855 3174.9511 L 4147.8855 3174.5511 L 4148.0855 3174.3411 L 4148.7055 3174.1411 L 4149.1155 3174.1411 L 4149.7255 3174.3411 L 4150.1355 3174.7511 L 4150.3355 3175.3611 L 4150.3355 3175.9811 L 4150.1355 3176.5911 L 4149.9355 3176.8011 L 4149.5255 3177.0011 M 4147.0655 3172.5811 L 4146.8655 3172.5811 L 4146.4555 3172.3811 L 4146.2455 3172.1711 L 4146.0455 3171.7611 L 4146.0455 3170.9511 L 4146.2455 3170.5411 L 4146.4555 3170.3311 L 4146.8655 3170.1311 L 4147.2755 3170.1311 L 4147.6855 3170.3311 L 4148.2955 3170.7411 L 4150.3355 3172.7911 L 4150.3355 3169.9211 M 4147.0655 3168.3711 L 4146.8655 3168.3711 L 4146.4555 3168.1611 L 4146.2455 3167.9611 L 4146.0455 3167.5511 L 4146.0455 3166.7311 L 4146.2455 3166.3211 L 4146.4555 3166.1211 L 4146.8655 3165.9111 L 4147.2755 3165.9111 L 4147.6855 3166.1211 L 4148.2955 3166.5311 L 4150.3355 3168.5711 L 4150.3355 3165.7111 M 4146.0455 3161.9011 L 4146.0455 3163.9511 L 4147.8855 3164.1511 L 4147.6855 3163.9511 L 4147.4755 3163.3411 L 4147.4755 3162.7211 L 4147.6855 3162.1111 L 4148.0855 3161.7011 L 4148.7055 3161.5011 L 4149.1155 3161.5011 L 4149.7255 3161.7011 L 4150.1355 3162.1111 L 4150.3355 3162.7211 L 4150.3355 3163.3411 L 4150.1355 3163.9511 L 4149.9355 3164.1511 L 4149.5255 3164.3611 M 4146.0455 3158.9211 L 4146.2455 3159.5311 L 4146.8655 3159.9411 L 4147.8855 3160.1511 L 4148.4955 3160.1511 L 4149.5255 3159.9411 L 4150.1355 3159.5311 L 4150.3355 3158.9211 L 4150.3355 3158.5111 L 4150.1355 3157.9011 L 4149.5255 3157.4911 L 4148.4955 3157.2811 L 4147.8855 3157.2811 L 4146.8655 3157.4911 L 4146.2455 3157.9011 L 4146.0455 3158.5111 L 4146.0455 3158.9211 M 4146.8655 3155.9311 L 4146.6555 3155.5211 L 4146.0455 3154.9111 L 4150.3355 3154.9111 M 4146.0455 3153.5611 L 4150.3355 3153.5611 M 4146.0455 3153.5611 L 4146.0455 3151.7211 L 4146.2455 3151.1011 L 4146.4555 3150.9011 L 4146.8655 3150.7011 L 4147.2755 3150.7011 L 4147.6855 3150.9011 L 4147.8855 3151.1011 L 4148.0855 3151.7211 M 4148.0855 3153.5611 L 4148.0855 3151.7211 L 4148.2955 3151.1011 L 4148.4955 3150.9011 L 4148.9055 3150.7011 L 4149.5255 3150.7011 L 4149.9355 3150.9011 L 4150.1355 3151.1011 L 4150.3355 3151.7211 L 4150.3355 3153.5611","thickness":0.6,"width":0.6,"val":1},{"type":"text","svgpath":"M 4154.7213 3142.8897 L 4155.0735 3142.8589 L 4155.4033 3142.6526 L 4155.7246 3142.2696 L 4155.877 3141.9013 L 4155.8462 3141.5491 L 4155.647 3141.382 L 4155.3719 3141.3209 L 4155.2029 3141.3357 L 4154.9426 3141.4436 L 4154.269 3141.8575 L 4154.0164 3141.9718 L 4153.8332 3141.9879 L 4153.5646 3141.9191 L 4153.2811 3141.6813 L 4153.2503 3141.329 L 4153.3886 3140.962 L 4153.71 3140.579 L 4154.0538 3140.3715 L 4154.406 3140.3407 M 4154.4712 3143.7633 L 4152.0516 3142.5554 M 4153.6677 3144.7209 L 4152.0516 3142.5554 M 4153.6677 3144.7209 L 4151.2481 3143.513 M 4152.8578 3145.6861 L 4151.2481 3143.513 M 4152.17 3146.5058 L 4151.283 3147.5629 L 4150.999 3146.3456 L 4150.7548 3146.6367 L 4150.4945 3146.7446 L 4150.3254 3146.7594 L 4149.9508 3146.6148 L 4149.7593 3146.4541 L 4149.5594 3146.1167 L 4149.5286 3145.7644 L 4149.6732 3145.3898 L 4149.9111 3145.1063 L 4150.2549 3144.8988 L 4150.424 3144.884 L 4150.6991 3144.9451","thickness":0.3937,"width":0.3937,"ref":1},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4123.8595,3110.8064 4124.641,3109.8748 4120.811,3106.6609"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4115.2553,3121.0605 4121.1712,3114.0101"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4107.9551,3121.9818 4111.7855,3125.1958 4112.567,3124.2644"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4110.0464,3105.5431 4113.6655,3108.5799"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4104.9851,3111.575 4108.6043,3114.6118"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4110.0464,3105.5431 4104.9851,3111.575"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4111.1348,3111.5958 4114.6703,3107.3826"},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4111.1348,3111.5958 4107.6708,3115.7244"},{"type":"text","svgpath":"M 4116.6852 3108.6072 L 4118.7252 3106.9672 L 4120.9752 3106.9672 M 4116.6852 3105.3372 L 4118.7252 3106.9672 M 4116.6852 3102.5572 L 4120.9752 3102.5572 M 4116.6852 3103.9872 L 4116.6852 3101.1172 M 4117.2952 3096.9072 L 4116.8852 3097.3172 L 4116.6852 3097.9272 L 4116.6852 3098.7472 L 4116.8852 3099.3572 L 4117.2952 3099.7672 L 4117.7052 3099.7672 L 4118.1152 3099.5672 L 4118.3252 3099.3572 L 4118.5252 3098.9572 L 4118.9352 3097.7272 L 4119.1352 3097.3172 L 4119.3452 3097.1072 L 4119.7552 3096.9072 L 4120.3652 3096.9072 L 4120.7752 3097.3172 L 4120.9752 3097.9272 L 4120.9752 3098.7472 L 4120.7752 3099.3572 L 4120.3652 3099.7672 M 4116.6852 3093.9172 L 4120.9752 3095.5572 M 4116.6852 3093.9172 L 4120.9752 3092.2872 M 4119.5452 3094.9472 L 4119.5452 3092.8972 M 4116.6852 3089.7072 L 4116.8852 3090.3172 L 4117.5052 3090.7272 L 4118.5252 3090.9372 L 4119.1352 3090.9372 L 4120.1652 3090.7272 L 4120.7752 3090.3172 L 4120.9752 3089.7072 L 4120.9752 3089.2972 L 4120.7752 3088.6872 L 4120.1652 3088.2772 L 4119.1352 3088.0672 L 4118.5252 3088.0672 L 4117.5052 3088.2772 L 4116.8852 3088.6872 L 4116.6852 3089.2972 L 4116.6852 3089.7072 M 4116.6852 3085.4972 L 4116.8852 3086.1072 L 4117.5052 3086.5172 L 4118.5252 3086.7172 L 4119.1352 3086.7172 L 4120.1652 3086.5172 L 4120.7752 3086.1072 L 4120.9752 3085.4972 L 4120.9752 3085.0872 L 4120.7752 3084.4672 L 4120.1652 3084.0572 L 4119.1352 3083.8572 L 4118.5252 3083.8572 L 4117.5052 3084.0572 L 4116.8852 3084.4672 L 4116.6852 3085.0872 L 4116.6852 3085.4972 M 4117.7052 3082.3072 L 4117.5052 3082.3072 L 4117.0952 3082.0972 L 4116.8852 3081.8972 L 4116.6852 3081.4872 L 4116.6852 3080.6672 L 4116.8852 3080.2572 L 4117.0952 3080.0572 L 4117.5052 3079.8472 L 4117.9152 3079.8472 L 4118.3252 3080.0572 L 4118.9352 3080.4572 L 4120.9752 3082.5072 L 4120.9752 3079.6472 M 4116.6852 3076.6572 L 4120.9752 3078.2972 M 4116.6852 3076.6572 L 4120.9752 3075.0172 M 4119.5452 3077.6772 L 4119.5452 3075.6372 M 4116.6852 3072.4472 L 4116.8852 3073.0572 L 4117.5052 3073.4672 L 4118.5252 3073.6672 L 4119.1352 3073.6672 L 4120.1652 3073.4672 L 4120.7752 3073.0572 L 4120.9752 3072.4472 L 4120.9752 3072.0372 L 4120.7752 3071.4172 L 4120.1652 3071.0072 L 4119.1352 3070.8072 L 4118.5252 3070.8072 L 4117.5052 3071.0072 L 4116.8852 3071.4172 L 4116.6852 3072.0372 L 4116.6852 3072.4472 M 4116.6852 3069.0472 L 4116.6852 3066.7972 L 4118.3252 3068.0272 L 4118.3252 3067.4072 L 4118.5252 3067.0072 L 4118.7252 3066.7972 L 4119.3452 3066.5972 L 4119.7552 3066.5972 L 4120.3652 3066.7972 L 4120.7752 3067.2072 L 4120.9752 3067.8172 L 4120.9752 3068.4372 L 4120.7752 3069.0472 L 4120.5752 3069.2572 L 4120.1652 3069.4572 M 4117.7052 3065.0372 L 4117.5052 3065.0372 L 4117.0952 3064.8372 L 4116.8852 3064.6272 L 4116.6852 3064.2172 L 4116.6852 3063.4072 L 4116.8852 3062.9972 L 4117.0952 3062.7872 L 4117.5052 3062.5872 L 4117.9152 3062.5872 L 4118.3252 3062.7872 L 4118.9352 3063.1972 L 4120.9752 3065.2472 L 4120.9752 3062.3772 M 4117.7052 3060.8272 L 4117.5052 3060.8272 L 4117.0952 3060.6172 L 4116.8852 3060.4172 L 4116.6852 3060.0072 L 4116.6852 3059.1872 L 4116.8852 3058.7772 L 4117.0952 3058.5772 L 4117.5052 3058.3672 L 4117.9152 3058.3672 L 4118.3252 3058.5772 L 4118.9352 3058.9872 L 4120.9752 3061.0272 L 4120.9752 3058.1672 M 4116.6852 3054.3572 L 4116.6852 3056.4072 L 4118.5252 3056.6072 L 4118.3252 3056.4072 L 4118.1152 3055.7972 L 4118.1152 3055.1772 L 4118.3252 3054.5672 L 4118.7252 3054.1572 L 4119.3452 3053.9572 L 4119.7552 3053.9572 L 4120.3652 3054.1572 L 4120.7752 3054.5672 L 4120.9752 3055.1772 L 4120.9752 3055.7972 L 4120.7752 3056.4072 L 4120.5752 3056.6072 L 4120.1652 3056.8172 M 4116.6852 3051.3772 L 4116.8852 3051.9872 L 4117.5052 3052.3972 L 4118.5252 3052.6072 L 4119.1352 3052.6072 L 4120.1652 3052.3972 L 4120.7752 3051.9872 L 4120.9752 3051.3772 L 4120.9752 3050.9672 L 4120.7752 3050.3572 L 4120.1652 3049.9472 L 4119.1352 3049.7372 L 4118.5252 3049.7372 L 4117.5052 3049.9472 L 4116.8852 3050.3572 L 4116.6852 3050.9672 L 4116.6852 3051.3772 M 4117.5052 3048.3872 L 4117.2952 3047.9772 L 4116.6852 3047.3672 L 4120.9752 3047.3672 M 4116.6852 3046.0172 L 4120.9752 3046.0172 M 4116.6852 3046.0172 L 4116.6852 3044.1772 L 4116.8852 3043.5572 L 4117.0952 3043.3572 L 4117.5052 3043.1572 L 4117.9152 3043.1572 L 4118.3252 3043.3572 L 4118.5252 3043.5572 L 4118.7252 3044.1772 M 4118.7252 3046.0172 L 4118.7252 3044.1772 L 4118.9352 3043.5572 L 4119.1352 3043.3572 L 4119.5452 3043.1572 L 4120.1652 3043.1572 L 4120.5752 3043.3572 L 4120.7752 3043.5572 L 4120.9752 3044.1772 L 4120.9752 3046.0172","thickness":0.6,"width":0.6,"val":1},{"type":"text","svgpath":"M 4114.7787 3117.1103 L 4114.4265 3117.1411 L 4114.0967 3117.3474 L 4113.7754 3117.7304 L 4113.623 3118.0987 L 4113.6538 3118.4509 L 4113.853 3118.618 L 4114.1281 3118.6791 L 4114.2971 3118.6643 L 4114.5574 3118.5564 L 4115.231 3118.1425 L 4115.4836 3118.0282 L 4115.6668 3118.0121 L 4115.9354 3118.0809 L 4116.2189 3118.3187 L 4116.2497 3118.671 L 4116.1114 3119.038 L 4115.79 3119.421 L 4115.4462 3119.6285 L 4115.094 3119.6593 M 4115.0288 3116.2367 L 4117.4484 3117.4446 M 4115.8323 3115.2791 L 4117.4484 3117.4446 M 4115.8323 3115.2791 L 4118.2519 3116.487 M 4116.6422 3114.3139 L 4118.2519 3116.487 M 4118.1399 3112.529 L 4117.33 3113.4942 L 4118.1185 3114.3125 L 4118.096 3114.137 L 4118.2483 3113.7688 L 4118.4862 3113.4853 L 4118.8224 3113.2714 L 4119.1746 3113.2406 L 4119.5492 3113.3852 L 4119.7407 3113.5459 L 4119.9406 3113.8833 L 4119.9714 3114.2356 L 4119.8268 3114.6102 L 4119.5889 3114.8937 L 4119.2451 3115.1012 L 4119.076 3115.116 L 4118.8009 3115.0549","thickness":0.3937,"width":0.3937,"ref":1},{"type":"polyline","net":"","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4096.5,3093.5369 4096.5,3093.5369 4173,3093.5369 4173,3166.0369 4096,3166.0369 4096,3093.5369 4096.5,3093.5369"},{"type":"circle","_svgpath":"M 4135, 3130 m -29.528, 0 a 29.528,29.528 0 1,0 59.056,0 a 29.528,29.528 0 1,0 -59.056,0","start":[4135,3130],"radius":29.528,"width":"1"}],"B":[]},"fabrication":{"F":[],"B":[]}},"footprints":[{"ref":"10K","center":[4147,3140.5],"bbox":{"pos":[4147,3140.5],"angle":230,"relpos":[-5.515673556821639,-2.97288904580455],"size":[11.031396597913044,5.925730398719679]},"pads":[{"layers":["F"],"pos":[4145.229,3142.611],"size":[3.1496,3.5433],"angle":-230,"shape":"rect","type":"smd","drillsize":[0],"net":"ADC_KEY"},{"layers":["F"],"pos":[4148.771,3138.389],"size":[3.1496,3.5433],"angle":-230,"pin1":1,"shape":"rect","type":"smd","drillsize":[0],"net":"3K3_1"}],"drawings":[],"layer":"F"},{"ref":"15K","center":[4147.5,3120],"bbox":{"pos":[4147.5,3120],"angle":310,"relpos":[-5.515673556822549,-2.972920218296167],"size":[11.031364069517622,5.925751392001985]},"pads":[{"layers":["F"],"pos":[4149.271,3122.111],"size":[3.1496,3.5433],"angle":-310,"shape":"rect","type":"smd","drillsize":[0],"net":"ADC_KEY"},{"layers":["F"],"pos":[4145.729,3117.889],"size":[3.1496,3.5433],"angle":-310,"pin1":1,"shape":"rect","type":"smd","drillsize":[0],"net":"4K7_1"}],"drawings":[],"layer":"F"},{"ref":"3K3","center":[4121.5,3120],"bbox":{"pos":[4121.5,3120],"angle":50,"relpos":[-5.515673556822549,-2.972889045802731],"size":[11.031396597913954,5.92573039871786]},"pads":[{"layers":["F"],"pos":[4123.271,3117.889],"size":[3.1496,3.5433],"angle":-50,"shape":"rect","type":"smd","drillsize":[0],"net":"ADC_KEY"},{"layers":["F"],"pos":[4119.729,3122.111],"size":[3.1496,3.5433],"angle":-50,"pin1":1,"shape":"rect","type":"smd","drillsize":[0],"net":"10K_1"}],"drawings":[],"layer":"F"},{"ref":"4K7","center":[4122,3140],"bbox":{"pos":[4122,3140],"angle":130,"relpos":[-5.515673556823458,-2.9729202182952577],"size":[11.031364069518531,5.925751392001075]},"pads":[{"layers":["F"],"pos":[4120.229,3137.889],"size":[3.1496,3.5433],"angle":-130,"shape":"rect","type":"smd","drillsize":[0],"net":"ADC_KEY"},{"layers":["F"],"pos":[4123.771,3142.111],"size":[3.1496,3.5433],"angle":-130,"pin1":1,"shape":"rect","type":"smd","drillsize":[0],"net":"15K_1"}],"drawings":[],"layer":"F"},{"ref":"SW4","center":[4114.5,3145.5],"bbox":{"pos":[4114.5,3145.5],"angle":130,"relpos":[-10.00003890331027,-8.464623846673021],"size":[20.000039261190977,13.964663343469965]},"pads":[{"layers":["F"],"pos":[4122.632,3147.413],"size":[2.3622,4.7244],"angle":-130,"pin1":1,"shape":"rect","type":"smd","drillsize":[0],"net":"15K_1"},{"layers":["F"],"pos":[4114.028,3137.159],"size":[2.3622,4.7244],"angle":-130,"shape":"rect","type":"smd","drillsize":[0],"net":"GND"},{"layers":["F"],"pos":[4107.072,3140.812],"size":[4.134,5.118],"angle":-130,"shape":"oval","type":"smd","drillsize":[0],"net":""},{"layers":["F"],"pos":[4117.827,3153.63],"size":[4.134,5.118],"angle":-130,"shape":"oval","type":"smd","drillsize":[0],"net":""}],"drawings":[],"layer":"F"},{"ref":"SW1","center":[4134.5,3154],"bbox":{"pos":[4134.5,3154],"angle":0,"relpos":[-7.873999999999796,-5.708700000000135],"size":[15.747999999999593,11.41740000000027]},"pads":[{"layers":["F"],"pos":[4125.642,3154],"size":[5.315,7.874],"angle":0,"pin1":1,"shape":"rect","type":"smd","drillsize":[0],"net":"ADC_KEY"},{"layers":["F"],"pos":[4143.358,3154],"size":[5.315,7.874],"angle":0,"shape":"rect","type":"smd","drillsize":[0],"net":"GND"}],"drawings":[],"layer":"F"},{"ref":"SW2","center":[4155,3113.5],"bbox":{"pos":[4155,3113.5],"angle":310,"relpos":[-10.00005377018988,-8.464638282523993],"size":[20.000130732514663,13.964661457639977]},"pads":[{"layers":["F"],"pos":[4146.868,3111.587],"size":[2.3622,4.7244],"angle":-310,"pin1":1,"shape":"rect","type":"smd","drillsize":[0],"net":"4K7_1"},{"layers":["F"],"pos":[4155.472,3121.841],"size":[2.3622,4.7244],"angle":-310,"shape":"rect","type":"smd","drillsize":[0],"net":"GND"},{"layers":["F"],"pos":[4162.428,3118.188],"size":[4.134,5.118],"angle":-310,"shape":"oval","type":"smd","drillsize":[0],"net":""},{"layers":["F"],"pos":[4151.673,3105.371],"size":[4.134,5.118],"angle":-310,"shape":"oval","type":"smd","drillsize":[0],"net":""}],"drawings":[],"layer":"F"},{"ref":"SW3","center":[4155,3146.5],"bbox":{"pos":[4155,3146.5],"angle":230,"relpos":[-10.000000357880708,-8.464623846672112],"size":[20.00003926118916,13.96466334347042]},"pads":[{"layers":["F"],"pos":[4155.472,3138.159],"size":[2.3622,4.7244],"angle":-230,"pin1":1,"shape":"rect","type":"smd","drillsize":[0],"net":"3K3_1"},{"layers":["F"],"pos":[4146.868,3148.413],"size":[2.3622,4.7244],"angle":-230,"shape":"rect","type":"smd","drillsize":[0],"net":"GND"},{"layers":["F"],"pos":[4151.673,3154.63],"size":[4.134,5.118],"angle":-230,"shape":"oval","type":"smd","drillsize":[0],"net":""},{"layers":["F"],"pos":[4162.428,3141.812],"size":[4.134,5.118],"angle":-230,"shape":"oval","type":"smd","drillsize":[0],"net":""}],"drawings":[],"layer":"F"},{"ref":"SW5","center":[4114,3114],"bbox":{"pos":[4114,3114],"angle":50,"relpos":[-10.000000357881618,-8.46462384667393],"size":[20.000103539950942,13.964739947915405]},"pads":[{"layers":["F"],"pos":[4113.528,3122.341],"size":[2.3622,4.7244],"angle":-50,"pin1":1,"shape":"rect","type":"smd","drillsize":[0],"net":"10K_1"},{"layers":["F"],"pos":[4122.132,3112.087],"size":[2.3622,4.7244],"angle":-50,"shape":"rect","type":"smd","drillsize":[0],"net":"GND"},{"layers":["F"],"pos":[4117.327,3105.871],"size":[4.134,5.118],"angle":-50,"shape":"oval","type":"smd","drillsize":[0],"net":""},{"layers":["F"],"pos":[4106.572,3118.688],"size":[4.134,5.118],"angle":-50,"shape":"oval","type":"smd","drillsize":[0],"net":""}],"drawings":[],"layer":"F"}],"metadata":{"title":"PCB_数控T12_按键板","revision":"0","company":"liweinan","date":"2021-05-10"},"tracks":{"F":[{"type":"polyline","net":"ADC_KEY","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4127,3151.5 4127,3150 4130.5,3146.5 4142.5,3146.5 4145.23,3143.77 4145.23,3142.61"},{"type":"polyline","net":"GND","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4146.8682,3148.4131 4143.5,3151.7813 4143.5,3154"},{"type":"polyline","net":"ADC_KEY","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4120.228,3137.889 4118.111,3137.889 4118,3138"},{"type":"polyline","net":"GND","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4114.028,3137.159 4114.028,3138.528 4116.5,3141 4118,3142.5"},{"type":"polyline","net":"ADC_KEY","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4127,3151.5 4125.6421,3152.8579 4125.6421,3154"},{"type":"polyline","net":"3K3_1","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4150.271,3138.889 4154.7421,3138.889 4155.4722,3138.1589"},{"type":"polyline","net":"4K7_1","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4145.729,3117.889 4145.729,3112.7261 4146.8682,3111.5869"},{"type":"polyline","net":"10K_1","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4113.5278,3122.3411 4119.4989,3122.3411 4119.729,3122.111"},{"type":"polyline","net":"15K_1","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4122.632,3147.413 4122.632,3143.2504 4123.7714,3142.111"},{"start":[4123.5,3118],"end":[4123.5,3118],"width":2.4},{"start":[4148.5,3122.5],"end":[4148.5,3122.5],"width":2.4},{"start":[4143.5,3154],"end":[4143.5,3154],"width":2.4},{"start":[4154.5,3123],"end":[4154.5,3123],"width":2.4},{"start":[4123.5,3112],"end":[4123.5,3112],"width":2.4},{"start":[4118,3138],"end":[4118,3138],"width":2.4},{"start":[4118,3142.5],"end":[4118,3142.5],"width":2.4},{"start":[4127,3151.5],"end":[4127,3151.5],"width":2.4}],"B":[{"type":"polyline","net":"ADC_KEY","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4123.5,3118 4126.5,3115 4143.5,3115 4148.5,3120 4148.5,3122.5"},{"type":"polyline","net":"GND","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4123.5,3112 4124,3112.5 4144.5,3112.5 4154.5,3122.5 4154.5,3123"},{"type":"polyline","net":"GND","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4143.5,3154 4143.5,3147.4998 4156.1538,3134.8459 4156.1538,3134.301"},{"type":"polyline","net":"ADC_KEY","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4118,3138 4115,3135 4115,3134.301"},{"type":"polyline","net":"ADC_KEY","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4118,3138 4127,3147 4127,3151.5"},{"type":"polyline","net":"ADC_KEY","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4123.5,3118 4122.34,3118 4114.73,3125.61"},{"type":"polyline","net":"GND","start":[0,0],"end":[0,0],"width":1,"svgpath":"M4143.5,3154 4143,3154 4138.5,3158.5 4129.5,3158.5 4120.5,3149.5 4120.5,3145 4118,3142.5"},{"start":[4123.5,3118],"end":[4123.5,3118],"width":2.4},{"start":[4148.5,3122.5],"end":[4148.5,3122.5],"width":2.4},{"start":[4143.5,3154],"end":[4143.5,3154],"width":2.4},{"start":[4154.5,3123],"end":[4154.5,3123],"width":2.4},{"start":[4123.5,3112],"end":[4123.5,3112],"width":2.4},{"start":[4118,3138],"end":[4118,3138],"width":2.4},{"start":[4118,3142.5],"end":[4118,3142.5],"width":2.4},{"start":[4127,3151.5],"end":[4127,3151.5],"width":2.4}]},"zones":{"F":[],"B":[]},"nets":["ADC_KEY","GND","3K3_1","4K7_1","10K_1","15K_1"],"bom":{"both":[[1,"UP","R0603",[["10K",0]],["ROHM Semicon","UCR03EVPFLR100","LCSC","C880952"]],[1,"LEFT","R0603",[["15K",1]],["ROHM Semicon","UCR03EVPFLR100","LCSC","C880952"]],[1,"RIGHT","R0603",[["3K3",2]],["ROHM Semicon","UCR03EVPFLR100","LCSC","C880952"]],[1,"DOWN","R0603",[["4K7",3]],["ROHM Semicon","UCR03EVPFLR100","LCSC","C880952"]],[4,"YTSA002A0322501B","SW-SMD_YTSA002XXXX",[["SW4",4],["SW2",6],["SW3",7],["SW5",8]],["DGBZ","YTSA002A0322501B","LCSC","C967748"]],[1,"SKRKAEE020","SW-SMD_L3.9-W3.0-P4.45",[["SW1",5]],["ALPS","SKRKAEE020","LCSC","C115357"]]],"F":[[1,"UP","R0603",[["10K",0]],["ROHM Semicon","UCR03EVPFLR100","LCSC","C880952"]],[1,"LEFT","R0603",[["15K",1]],["ROHM Semicon","UCR03EVPFLR100","LCSC","C880952"]],[1,"RIGHT","R0603",[["3K3",2]],["ROHM Semicon","UCR03EVPFLR100","LCSC","C880952"]],[1,"DOWN","R0603",[["4K7",3]],["ROHM Semicon","UCR03EVPFLR100","LCSC","C880952"]],[4,"YTSA002A0322501B","SW-SMD_YTSA002XXXX",[["SW4",4],["SW2",6],["SW3",7],["SW5",8]],["DGBZ","YTSA002A0322501B","LCSC","C967748"]],[1,"SKRKAEE020","SW-SMD_L3.9-W3.0-P4.45",[["SW1",5]],["ALPS","SKRKAEE020","LCSC","C115357"]]],"B":[],"skipped":[],"customColumns":["BOM_Manufacturer","BOM_Manufacturer Part","BOM_Supplier","BOM_Supplier Part"]}};
+///////////////////////////////////////////////
+
+///////////////////////////////////////////////
+/* Utility functions */
+
+var storagePrefix = 'ibom__' + pcbdata.metadata.title + '__' +
+  pcbdata.metadata.revision + '__#';
+
+function buildKeyForLocalStorageDict() {  
+  return storagePrefix;
+}
+
+var storage;
+var _isLocalStorageUsed = false;
+
+function initStorage(key) {
+  try {
+    window.localStorage.getItem("blank");
+    storage = window.localStorage;    
+    _isLocalStorageUsed = true;
+  } catch (e) {
+    // localStorage not available
+  }
+  if (!storage) {
+    try {
+      window.sessionStorage.getItem("blank");
+      storage = window.sessionStorage;      
+    } catch (e) {
+      // sessionStorage also not available
+    }
+  }
+}
+
+
+
+function readStorage(key) {
+  if(!storage) {
+    return null;
+  }
+
+  if(!_isLocalStorageUsed) {    
+    return storage.getItem(storagePrefix + key);
+  }
+
+  try {
+    var dictKey = buildKeyForLocalStorageDict();
+    var obj = JSON.parse(storage.getItem(dictKey));    
+    if(!obj || !obj.hasOwnProperty(key)) {
+      return null;
+    }
+
+    return JSON.parse(storage.getItem(dictKey))[key];
+  } catch(e) {
+    console.log('[ibom]: Unable to obtain a value from local storage!');
+    console.log(e);
+  }
+  
+  // Original implementation
+  // return storage.getItem(storagePrefix + key);
+}
+
+
+function writeStorage(key, value) {
+  if(!storage) {
+    return;
+  }
+
+  if(!_isLocalStorageUsed) {
+    storage.setItem(storagePrefix + key, value);
+    return;
+  }
+
+  try {
+    var dictKey = buildKeyForLocalStorageDict();
+    if(!storage.getItem(dictKey)) {
+      storage.setItem(dictKey,JSON.stringify({
+        _storagePrefix: storagePrefix
+      }));
+    }
+
+    var obj = JSON.parse(storage.getItem(dictKey));
+    obj[key] = value;
+    storage.setItem(dictKey,JSON.stringify(obj));            
+  } catch(e) {
+    console.log('[ibom]: Unable to write key to local storage!');
+    console.log(e);
+  }
+  
+  // Original implementation
+  // storage.setItem(storagePrefix + key, value);
+}
+
+function fancyDblClickHandler(el, onsingle, ondouble) {
+  return function() {
+    if (el.getAttribute("data-dblclick") == null) {
+      el.setAttribute("data-dblclick", 1);
+      setTimeout(function() {
+        if (el.getAttribute("data-dblclick") == 1) {
+          onsingle();
+        }
+        el.removeAttribute("data-dblclick");
+      }, 200);
+    } else {
+      el.removeAttribute("data-dblclick");
+      ondouble();
+    }
+  }
+}
+
+function smoothScrollToRow(rowid) {
+  document.getElementById(rowid).scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+    inline: "nearest"
+  });
+}
+
+function focusInputField(input) {
+  input.scrollIntoView(false);
+  input.focus();
+  input.select();
+}
+
+function copyToClipboard() {
+  var text = '';
+  for (var node of bomhead.childNodes[0].childNodes) {
+    if (node.firstChild) {
+      text = text + node.firstChild.nodeValue;
+    }
+    if (node != bomhead.childNodes[0].lastChild) {
+      text += '\t';
+    }
+  }
+  text += '\n';
+  for (var row of bombody.childNodes) {
+    for (var cell of row.childNodes) {
+      for (var node of cell.childNodes) {
+        if (node.nodeName == "INPUT") {
+          if (node.checked) {
+            text = text + '✓';
+          }
+        } else if (node.nodeName == "MARK") {
+          text = text + node.firstChild.nodeValue;
+        } else {
+          text = text + node.nodeValue;
+        }
+      }
+      if (cell != row.lastChild) {
+        text += '\t';
+      }
+    }
+    text += '\n';
+  }
+  var textArea = document.createElement("textarea");
+  textArea.classList.add('clipboard-temp');
+  textArea.value = text;
+
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  try {
+    if (document.execCommand('copy')) {
+      console.log('Bom copied to clipboard.');
+    }
+  } catch (err) {
+    console.log('Can not copy to clipboard.');
+  }
+
+  document.body.removeChild(textArea);
+}
+
+function removeGutterNode(node) {
+  for (var i = 0; i < node.childNodes.length; i++) {
+    if (node.childNodes[i].classList &&
+      node.childNodes[i].classList.contains("gutter")) {
+      node.removeChild(node.childNodes[i]);
+      break;
+    }
+  }
+}
+
+function cleanGutters() {
+  removeGutterNode(document.getElementById("bot"));
+  removeGutterNode(document.getElementById("canvasdiv"));
+}
+
+var units = {
+  prefixes: {
+    giga: ["G", "g", "giga", "Giga", "GIGA"],
+    mega: ["M", "mega", "Mega", "MEGA"],
+    kilo: ["K", "k", "kilo", "Kilo", "KILO"],
+    milli: ["m", "milli", "Milli", "MILLI"],
+    micro: ["U", "u", "micro", "Micro", "MICRO", "μ", "µ"], // different utf8 μ
+    nano: ["N", "n", "nano", "Nano", "NANO"],
+    pico: ["P", "p", "pico", "Pico", "PICO"],
+  },
+  unitsShort: ["R", "r", "Ω", "F", "f", "H", "h"],
+  unitsLong: [
+    "OHM", "Ohm", "ohm", "ohms",
+    "FARAD", "Farad", "farad",
+    "HENRY", "Henry", "henry"
+  ],
+  getMultiplier: function(s) {
+    if (this.prefixes.giga.includes(s)) return 1e9;
+    if (this.prefixes.mega.includes(s)) return 1e6;
+    if (this.prefixes.kilo.includes(s)) return 1e3;
+    if (this.prefixes.milli.includes(s)) return 1e-3;
+    if (this.prefixes.micro.includes(s)) return 1e-6;
+    if (this.prefixes.nano.includes(s)) return 1e-9;
+    if (this.prefixes.pico.includes(s)) return 1e-12;
+    return 1;
+  },
+  valueRegex: null,
+}
+
+function initUtils() {
+  var allPrefixes = units.prefixes.giga
+                    .concat(units.prefixes.mega)
+                    .concat(units.prefixes.kilo)
+                    .concat(units.prefixes.milli)
+                    .concat(units.prefixes.micro)
+                    .concat(units.prefixes.nano)
+                    .concat(units.prefixes.pico);
+  var allUnits = units.unitsShort.concat(units.unitsLong);
+  units.valueRegex = new RegExp("^([0-9\.]+)" +
+                         "\\s*(" + allPrefixes.join("|") + ")?" +
+                         "(" + allUnits.join("|") + ")?" +
+                         "(\\b.*)?$", "");
+  units.valueAltRegex = new RegExp("^([0-9]*)" +
+                         "(" + units.unitsShort.join("|") + ")?" +
+                         "([GgMmKkUuNnPp])?" +
+                         "([0-9]*)" +
+                         "(\\b.*)?$", "");
+  for (var bom_type of ["both", "F", "B"]) {
+    for (var row of pcbdata.bom[bom_type]) {
+      row.push(parseValue(row[1], row[3][0][0]));
+    }
+  }
+}
+
+function parseValue(val, ref) {
+  var inferUnit = (unit, ref) => {
+    if (unit) {
+      unit = unit.toLowerCase();
+      if (unit == 'Ω' || unit == "ohm" || unit == "ohms") {
+        unit = 'r';
+      }
+      unit = unit[0];
+    } else {
+      ref = /^([a-z]+)\d+$/i.exec(ref);
+      if (ref) {
+        ref = ref[1].toLowerCase();
+        if (ref == "c") unit = 'f';
+        else if (ref == "l") unit = 'h';
+        else if (ref == "r" || ref == "rv") unit = 'r';
+        else unit = null;
+      }
+    }
+    return unit;
+  };
+  val = val.replace(/,/g, "");
+  var match = units.valueRegex.exec(val);
+  var unit;
+  if (match) {
+    val = parseFloat(match[1]);
+    if (match[2]) {
+      val = val * units.getMultiplier(match[2]);
+    }
+    unit = inferUnit(match[3], ref);
+    if (!unit) return null;
+    else return {
+      val: val,
+      unit: unit,
+      extra: match[4],
+    }
+  }
+  match = units.valueAltRegex.exec(val);
+  if (match && (match[1] || match[4])) {
+    val = parseFloat(match[1] + "." + match[4]);
+    if (match[3]) {
+      val = val * units.getMultiplier(match[3]);
+    }
+    unit = inferUnit(match[2], ref);
+    if (!unit) return null;
+    else return {
+      val: val,
+      unit: unit,
+      extra: match[5],
+    }
+  }
+  return null;
+}
+
+function valueCompare(a, b, stra, strb) {
+  if (a === null && b === null) {
+    // Failed to parse both values, compare them as strings.
+    if (stra != strb) return stra > strb ? 1 : -1;
+    else return 0;
+  } else if (a === null) {
+    return 1;
+  } else if (b === null) {
+    return -1;
+  } else {
+    if (a.unit != b.unit) return a.unit > b.unit ? 1 : -1;
+    else if (a.val != b.val) return a.val > b.val ? 1 : -1;
+    else if (a.extra != b.extra) return a.extra > b.extra ? 1 : -1;
+    else return 0;
+  }
+}
+
+function validateSaveImgDimension(element) {
+  var valid = false;
+  var intValue = 0;
+  if (/^[1-9]\d*$/.test(element.value)) {
+    intValue = parseInt(element.value);
+    if (intValue <= 16000) {
+      valid = true;
+    }
+  }
+  if (valid) {
+    element.classList.remove("invalid");
+  } else {
+    element.classList.add("invalid");
+  }
+  return intValue;
+}
+
+function saveImage(layer) {
+  var width = validateSaveImgDimension(document.getElementById("render-save-width"));
+  var height = validateSaveImgDimension(document.getElementById("render-save-height"));
+  var bgcolor = null;
+  if (!document.getElementById("render-save-transparent").checked) {
+    var style = getComputedStyle(topmostdiv);
+    bgcolor = style.getPropertyValue("background-color");
+  }
+  if (!width || !height) return;
+
+  // Prepare image
+  var canvas = document.createElement("canvas");
+  var layerdict = {
+    transform: {
+      x: 0,
+      y: 0,
+      s: 1,
+      panx: 0,
+      pany: 0,
+      zoom: 1,
+    },
+    bg: canvas,
+    fab: canvas,
+    silk: canvas,
+    highlight: canvas,
+    layer: layer,
+  }
+  // Do the rendering
+  recalcLayerScale(layerdict, width, height);
+  prepareLayer(layerdict);
+  clearCanvas(canvas, bgcolor);
+  drawBackground(layerdict, false);
+  drawHighlightsOnLayer(layerdict, false);
+
+  // Save image
+  var imgdata = canvas.toDataURL("image/png");
+
+  var filename = pcbdata.metadata.title;
+  if (pcbdata.metadata.revision) {
+    filename += `.${pcbdata.metadata.revision}`;
+  }
+  filename += `.${layer}.png`;
+  saveFile(filename, dataURLtoBlob(imgdata));
+}
+
+function saveSettings() {
+  var data = {
+    type: "InteractiveHtmlBom settings",
+    version: 1,
+    pcbmetadata: pcbdata.metadata,
+    settings: settings,
+  }
+  var blob = new Blob([JSON.stringify(data, null, 4)], {type: "application/json"});
+  saveFile(`${pcbdata.metadata.title}.settings.json`, blob);
+}
+
+function loadSettings() {
+  var input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".settings.json";
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    var reader = new FileReader();
+    reader.onload = readerEvent => {
+      var content = readerEvent.target.result;
+      var newSettings;
+      try {
+        newSettings = JSON.parse(content);
+      } catch(e) {
+        alert("Selected file is not InteractiveHtmlBom settings file.");
+        return;
+      }
+      if (newSettings.type != "InteractiveHtmlBom settings") {
+        alert("Selected file is not InteractiveHtmlBom settings file.");
+        return;
+      }
+      var metadataMatches = newSettings.hasOwnProperty("pcbmetadata");
+      if (metadataMatches) {
+        for (var k in pcbdata.metadata) {
+          if (!newSettings.pcbmetadata.hasOwnProperty(k) || newSettings.pcbmetadata[k] != pcbdata.metadata[k]) {
+            metadataMatches = false;
+          }
+        }
+      }
+      if (!metadataMatches) {
+        var currentMetadata = JSON.stringify(pcbdata.metadata, null, 4);
+        var fileMetadata = JSON.stringify(newSettings.pcbmetadata, null, 4);
+        if (!confirm(
+          `Settins file metadata does not match current metadata.\n\n` +
+          `Page metadata:\n${currentMetadata}\n\n` +
+          `Settings file metadata:\n${fileMetadata}\n\n` +
+          `Press OK if you would like to import settings anyway.`)) {
+          return;
+        }
+      }
+      overwriteSettings(newSettings.settings);
+    }
+    reader.readAsText(file, 'UTF-8');
+  }
+  input.click();
+}
+
+function overwriteSettings(newSettings) {
+
+  initDone = false;
+  Object.assign(settings, newSettings);
+  writeStorage("bomlayout", settings.bomlayout);
+  writeStorage("bommode", settings.bommode);
+  writeStorage("canvaslayout", settings.canvaslayout);
+  writeStorage("bomCheckboxes", settings.checkboxes.join(","));
+  document.getElementById("bomCheckboxes").value = settings.checkboxes.join(",");
+  for (var checkbox of settings.checkboxes) {
+    writeStorage("checkbox_" + checkbox, settings.checkboxStoredRefs[checkbox]);
+  }
+  writeStorage("darkenWhenChecked", settings.darkenWhenChecked);
+  padsVisible(settings.renderPads);
+  document.getElementById("padsCheckbox").checked = settings.renderPads;
+  fabricationVisible(settings.renderFabrication);
+  document.getElementById("fabricationCheckbox").checked = settings.renderFabrication;
+  silkscreenVisible(settings.renderSilkscreen);
+  document.getElementById("silkscreenCheckbox").checked = settings.renderSilkscreen;
+  referencesVisible(settings.renderReferences);
+  document.getElementById("referencesCheckbox").checked = settings.renderReferences;
+  valuesVisible(settings.renderValues);
+  document.getElementById("valuesCheckbox").checked = settings.renderValues;
+  tracksVisible(settings.renderTracks);
+  document.getElementById("tracksCheckbox").checked = settings.renderTracks;
+  zonesVisible(settings.renderZones);
+  document.getElementById("zonesCheckbox").checked = settings.renderZones;
+  dnpOutline(settings.renderDnpOutline);
+  document.getElementById("dnpOutlineCheckbox").checked = settings.renderDnpOutline;
+  setRedrawOnDrag(settings.redrawOnDrag);
+  document.getElementById("dragCheckbox").checked = settings.redrawOnDrag;
+  setDarkMode(settings.darkMode);
+  document.getElementById("darkmodeCheckbox").checked = settings.darkMode;
+  setHighlightPin1(settings.highlightpin1);
+  document.getElementById("highlightpin1Checkbox").checked = settings.highlightpin1;
+  writeStorage("boardRotation", settings.boardRotation);
+  document.getElementById("boardRotation").value = settings.boardRotation / 5;
+  document.getElementById("rotationDegree").textContent = settings.boardRotation;
+  initDone = true;
+  prepCheckboxes();
+  changeBomLayout(settings.bomlayout);
+}
+
+function saveFile(filename, blob) {
+  var link = document.createElement("a");
+  var objurl = URL.createObjectURL(blob);
+  link.download = filename;
+  link.href = objurl;
+  link.click();
+}
+
+function dataURLtoBlob(dataurl) {
+  var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+  while(n--){
+      u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], {type:mime});
+}
+
+var settings = {
+  canvaslayout: "default",
+  bomlayout: "default",
+  bommode: "grouped",
+  checkboxes: [],
+  checkboxStoredRefs: {},
+  darkMode: false,
+  highlightpin1: false,
+  redrawOnDrag: true,
+  boardRotation: 0,
+  renderPads: true,
+  renderReferences: true,
+  renderValues: true,
+  renderSilkscreen: true,
+  renderFabrication: true,
+  renderDnpOutline: false,
+  renderTracks: true,
+  renderZones: true,
+}
+
+function initDefaults() {
+  settings.bomlayout = readStorage("bomlayout");
+  if (settings.bomlayout === null) {
+    settings.bomlayout = config.bom_view;
+  }
+  if (!['bom-only', 'left-right', 'top-bottom'].includes(settings.bomlayout)) {
+    settings.bomlayout = config.bom_view;
+  }
+  settings.bommode = readStorage("bommode");
+  if (settings.bommode === null) {
+    settings.bommode = "grouped";
+  }
+  if (!["grouped", "ungrouped", "netlist"].includes(settings.bommode)) {
+    settings.bommode = "grouped";
+  }
+  settings.canvaslayout = readStorage("canvaslayout");
+  if (settings.canvaslayout === null) {
+    settings.canvaslayout = config.layer_view;
+  }
+  var bomCheckboxes = readStorage("bomCheckboxes");
+  if (bomCheckboxes === null) {
+    bomCheckboxes = config.checkboxes;
+  }
+  settings.checkboxes = bomCheckboxes.split(",").filter((e) => e);
+  document.getElementById("bomCheckboxes").value = bomCheckboxes;
+
+  settings.darkenWhenChecked = readStorage("darkenWhenChecked") || "";
+  populateDarkenWhenCheckedOptions();
+
+  function initBooleanSetting(storageString, def, elementId, func) {    
+    var b = readStorage(storageString);
+    if (b === null) {
+      b = def;
+    } else {
+      b = (b === true);
+    }
+    document.getElementById(elementId).checked = b;
+    func(b);
+  }
+
+  initBooleanSetting("padsVisible", config.show_pads, "padsCheckbox", padsVisible);
+  initBooleanSetting("fabricationVisible", config.show_fabrication, "fabricationCheckbox", fabricationVisible);
+  initBooleanSetting("silkscreenVisible", config.show_silkscreen, "silkscreenCheckbox", silkscreenVisible);
+  initBooleanSetting("referencesVisible", true, "referencesCheckbox", referencesVisible);
+  initBooleanSetting("valuesVisible", false, "valuesCheckbox", valuesVisible);
+  if ("tracks" in pcbdata) {
+    initBooleanSetting("tracksVisible", true, "tracksCheckbox", tracksVisible);
+    initBooleanSetting("zonesVisible", true, "zonesCheckbox", zonesVisible);
+  } else {
+    document.getElementById("tracksAndZonesCheckboxes").style.display = "none";
+    tracksVisible(false);
+    zonesVisible(false);
+  }
+  initBooleanSetting("dnpOutline", false, "dnpOutlineCheckbox", dnpOutline);
+  initBooleanSetting("redrawOnDrag", config.redraw_on_drag, "dragCheckbox", setRedrawOnDrag);
+  initBooleanSetting("darkmode", config.dark_mode, "darkmodeCheckbox", setDarkMode);
+  initBooleanSetting("highlightpin1", config.highlight_pin1, "highlightpin1Checkbox", setHighlightPin1);
+  settings.boardRotation = readStorage("boardRotation");
+  if (settings.boardRotation === null) {
+    settings.boardRotation = config.board_rotation * 5;
+  } else {
+    settings.boardRotation = parseInt(settings.boardRotation);
+  }
+  document.getElementById("boardRotation").value = settings.boardRotation / 5;
+  document.getElementById("rotationDegree").textContent = settings.boardRotation;
+}
+
+// Helper classes for user js callbacks.
+
+const IBOM_EVENT_TYPES = {
+  ALL: "all",
+  HIGHLIGHT_EVENT: "highlightEvent",
+  CHECKBOX_CHANGE_EVENT: "checkboxChangeEvent",
+  BOM_BODY_CHANGE_EVENT: "bomBodyChangeEvent",
+}
+
+const EventHandler = {
+  callbacks: {},
+  init: function() {
+    for (eventType of Object.values(IBOM_EVENT_TYPES))
+      this.callbacks[eventType] = [];
+  },
+  registerCallback: function(eventType, callback) {
+    this.callbacks[eventType].push(callback);
+  },
+  emitEvent: function(eventType, eventArgs) {
+    event = {
+      eventType: eventType,
+      args: eventArgs,
+    }
+    var callback;
+    for(callback of this.callbacks[eventType])
+      callback(event);
+    for(callback of this.callbacks[IBOM_EVENT_TYPES.ALL])
+      callback(event);
+  }
+}
+EventHandler.init();
+
+///////////////////////////////////////////////
+
+///////////////////////////////////////////////
+/* PCB rendering code */
+
+var emptyContext2d = document.createElement("canvas").getContext("2d");
+
+function deg2rad(deg) {
+  return deg * Math.PI / 180;
+}
+
+function calcFontPoint(linepoint, text, offsetx, offsety, tilt) {
+  var point = [
+    linepoint[0] * text.width + offsetx,
+    linepoint[1] * text.height + offsety
+  ];
+  // This approximates pcbnew behavior with how text tilts depending on horizontal justification
+  point[0] -= (linepoint[1] + 0.5 * (1 + text.justify[0])) * text.height * tilt;
+  return point;
+}
+
+function drawText(ctx, text, color) {
+  if ("ref" in text && !settings.renderReferences) return;
+  if ("val" in text && !settings.renderValues) return;
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = text.thickness;
+  if ("svgpath" in text) {
+    ctx.stroke(new Path2D(text.svgpath));
+    ctx.restore();
+    return;
+  }
+  ctx.translate(...text.pos);
+  ctx.translate(text.thickness * 0.5, 0);
+  var angle = -text.angle;
+  if (text.attr.includes("mirrored")) {
+    ctx.scale(-1, 1);
+    angle = -angle;
+  }
+  var tilt = 0;
+  if (text.attr.includes("italic")) {
+    tilt = 0.125;
+  }
+  var interline = text.height * 1.5 + text.thickness;
+  var txt = text.text.split("\n");
+  // KiCad ignores last empty line.
+  if (txt[txt.length - 1] == '') txt.pop();
+  ctx.rotate(deg2rad(angle));
+  var offsety = (1 - text.justify[1]) / 2 * text.height; // One line offset
+  offsety -= (txt.length - 1) * (text.justify[1] + 1) / 2 * interline; // Multiline offset
+  for (var i in txt) {
+    var lineWidth = text.thickness + interline / 2 * tilt;
+    for (var j = 0; j < txt[i].length; j++) {
+      if (txt[i][j] == '\t') {
+        var fourSpaces = 4 * pcbdata.font_data[' '].w * text.width;
+        lineWidth += fourSpaces - lineWidth % fourSpaces;
+      } else {
+        if (txt[i][j] == '~') {
+          j++;
+          if (j == txt[i].length)
+            break;
+        }
+        lineWidth += pcbdata.font_data[txt[i][j]].w * text.width;
+      }
+    }
+    var offsetx = -lineWidth * (text.justify[0] + 1) / 2;
+    var inOverbar = false;
+    for (var j = 0; j < txt[i].length; j++) {
+      if (txt[i][j] == '\t') {
+        var fourSpaces = 4 * pcbdata.font_data[' '].w * text.width;
+        offsetx += fourSpaces - offsetx % fourSpaces;
+        continue;
+      } else if (txt[i][j] == '~') {
+        j++;
+        if (j == txt[i].length)
+          break;
+        if (txt[i][j] != '~') {
+          inOverbar = !inOverbar;
+        }
+      }
+      var glyph = pcbdata.font_data[txt[i][j]];
+      if (inOverbar) {
+        var overbarStart = [offsetx, -text.height * 1.4 + offsety];
+        var overbarEnd = [offsetx + text.width * glyph.w, overbarStart[1]];
+
+        if (!lastHadOverbar) {
+          overbarStart[0] += text.height * 1.4 * tilt;
+          lastHadOverbar = true;
+        }
+        ctx.beginPath();
+        ctx.moveTo(...overbarStart);
+        ctx.lineTo(...overbarEnd);
+        ctx.stroke();
+      } else {
+        lastHadOverbar = false;
+      }
+      for (var line of glyph.l) {
+        ctx.beginPath();
+        ctx.moveTo(...calcFontPoint(line[0], text, offsetx, offsety, tilt));
+        for (var k = 1; k < line.length; k++) {
+          ctx.lineTo(...calcFontPoint(line[k], text, offsetx, offsety, tilt));
+        }
+        ctx.stroke();
+      }
+      offsetx += glyph.w * text.width;
+    }
+    offsety += interline;
+  }
+  ctx.restore();
+}
+
+function drawedge(ctx, scalefactor, edge, color) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = Math.max(1 / scalefactor, edge.width);
+  ctx.lineCap = "round";
+  if ("svgpath" in edge) {
+    ctx.stroke(new Path2D(edge.svgpath));
+  } else {
+    ctx.beginPath();
+    if (edge.type == "segment") {
+      ctx.moveTo(...edge.start);
+      ctx.lineTo(...edge.end);
+    }
+    if (edge.type == "rect") {
+      ctx.moveTo(...edge.start);
+      ctx.lineTo(edge.start[0], edge.end[1]);
+      ctx.lineTo(...edge.end);
+      ctx.lineTo(edge.end[0], edge.start[1]);
+      ctx.lineTo(...edge.start);
+    }
+    if (edge.type == "arc") {
+      ctx.arc(
+        ...edge.start,
+        edge.radius,
+        deg2rad(edge.startangle),
+        deg2rad(edge.endangle));
+    }
+    if (edge.type == "circle") {
+      ctx.arc(
+        ...edge.start,
+        edge.radius,
+        0, 2 * Math.PI);
+      ctx.closePath();
+    }
+    if (edge.type == "curve") {
+      ctx.moveTo(...edge.start);
+      ctx.bezierCurveTo(...edge.cpa, ...edge.cpb, ...edge.end);
+    }
+    ctx.stroke();
+  }
+}
+
+function getChamferedRectPath(size, radius, chamfpos, chamfratio) {
+  // chamfpos is a bitmask, left = 1, right = 2, bottom left = 4, bottom right = 8
+  var path = new Path2D();
+  var width = size[0];
+  var height = size[1];
+  var x = width * -0.5;
+  var y = height * -0.5;
+  var chamfOffset = Math.min(width, height) * chamfratio;
+  path.moveTo(x, 0);
+  if (chamfpos & 4) {
+    path.lineTo(x, y + height - chamfOffset);
+    path.lineTo(x + chamfOffset, y + height);
+    path.lineTo(0, y + height);
+  } else {
+    path.arcTo(x, y + height, x + width, y + height, radius);
+  }
+  if (chamfpos & 8) {
+    path.lineTo(x + width - chamfOffset, y + height);
+    path.lineTo(x + width, y + height - chamfOffset);
+    path.lineTo(x + width, 0);
+  } else {
+    path.arcTo(x + width, y + height, x + width, y, radius);
+  }
+  if (chamfpos & 2) {
+    path.lineTo(x + width, y + chamfOffset);
+    path.lineTo(x + width - chamfOffset, y);
+    path.lineTo(0, y);
+  } else {
+    path.arcTo(x + width, y, x, y, radius);
+  }
+  if (chamfpos & 1) {
+    path.lineTo(x + chamfOffset, y);
+    path.lineTo(x, y + chamfOffset);
+    path.lineTo(x, 0);
+  } else {
+    path.arcTo(x, y, x, y + height, radius);
+  }
+  path.closePath();
+  return path;
+}
+
+function getOblongPath(size) {
+  return getChamferedRectPath(size, Math.min(size[0], size[1]) / 2, 0, 0);
+}
+
+function getPolygonsPath(shape) {
+  if (shape.path2d) {
+    return shape.path2d;
+  }
+  if ("svgpath" in shape) {
+    shape.path2d = new Path2D(shape.svgpath);
+  } else {
+    var path = new Path2D();
+    for (var polygon of shape.polygons) {
+      path.moveTo(...polygon[0]);
+      for (var i = 1; i < polygon.length; i++) {
+        path.lineTo(...polygon[i]);
+      }
+      path.closePath();
+    }
+    shape.path2d = path;
+  }
+  return shape.path2d;
+}
+
+function drawPolygonShape(ctx, shape, color) {
+  ctx.save();
+  ctx.fillStyle = color;
+  if (!("svgpath" in shape)) {
+    ctx.translate(...shape.pos);
+    ctx.rotate(deg2rad(-shape.angle));
+  }
+  ctx.fill(getPolygonsPath(shape));
+  ctx.restore();
+}
+
+
+function drawPolylineShape(ctx, shape, color) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = shape.width;
+  if (!("svgpath" in shape)) {
+    ctx.translate(...shape.pos);
+    ctx.rotate(deg2rad(-shape.angle));
+  }
+  ctx.stroke(getPolygonsPath(shape));
+  ctx.restore();
+}
+
+function drawDrawing(ctx, scalefactor, drawing, color) {
+  console.log('draw drawing?');
+  if (["segment", "arc", "circle", "curve"].includes(drawing.type)) {
+    drawedge(ctx, scalefactor, drawing, color);
+  } else if (drawing.type == "polygon") {
+    drawPolygonShape(ctx, drawing, color);
+  } else if (drawing.type == "text") {
+    console.log('Text is here')
+    drawText(ctx, drawing, color);
+  } else if (drawing.type == "polyline") {
+    console.log('Polyline is here')
+    drawPolylineShape(ctx, drawing, color);
+  }
+}
+
+function getCirclePath(radius) {
+  var path = new Path2D();
+  path.arc(0, 0, radius, 0, 2 * Math.PI);
+  path.closePath();
+  return path;
+}
+
+function getCachedPadPath(pad) {
+  if (!pad.path2d) {
+    // if path2d is not set, build one and cache it on pad object
+    if (pad.shape == "rect") {
+      pad.path2d = new Path2D();
+      pad.path2d.rect(...pad.size.map(c => -c * 0.5), ...pad.size);
+    } else if (pad.shape == "oval") {
+      pad.path2d = getOblongPath(pad.size);
+    } else if (pad.shape == "circle") {
+      pad.path2d = getCirclePath(pad.size[0] / 2);
+    } else if (pad.shape == "roundrect") {
+      pad.path2d = getChamferedRectPath(pad.size, pad.radius, 0, 0);
+    } else if (pad.shape == "chamfrect") {
+      pad.path2d = getChamferedRectPath(pad.size, pad.radius, pad.chamfpos, pad.chamfratio)
+    } else if (pad.shape == "custom") {
+      pad.path2d = getPolygonsPath(pad);
+    }
+  }
+  return pad.path2d;
+}
+
+function drawPad(ctx, pad, color, outline) {
+  ctx.save();
+  ctx.translate(...pad.pos);
+  ctx.rotate(deg2rad(pad.angle));
+  if (pad.offset) {
+    ctx.translate(...pad.offset);
+  }
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+  var path = getCachedPadPath(pad);
+  if (outline) {
+    ctx.stroke(path);
+  } else {
+    ctx.fill(path);
+  }
+  ctx.restore();
+}
+
+function drawPadHole(ctx, pad, padHoleColor) {
+  if (pad.type != "th") return;
+  ctx.save();
+  ctx.translate(...pad.pos);
+  ctx.rotate(deg2rad(pad.angle));
+  ctx.fillStyle = padHoleColor;
+  if (pad.drillshape == "oblong") {
+    ctx.fill(getOblongPath(pad.drillsize));
+  } else {
+    ctx.fill(getCirclePath(pad.drillsize[0] / 2));
+  }
+  ctx.restore();
+}
+
+function drawFootprint(ctx, layer, scalefactor, footprint, padColor, padHoleColor, outlineColor, highlight, outline) {
+  if (highlight) {
+    // draw bounding box
+    if (footprint.layer == layer) {
+      ctx.save();
+      ctx.globalAlpha = 0.2;
+      ctx.translate(...footprint.bbox.pos);
+      ctx.rotate(deg2rad(-footprint.bbox.angle));
+      ctx.translate(...footprint.bbox.relpos);
+      ctx.fillStyle = padColor;
+      ctx.fillRect(0, 0, ...footprint.bbox.size);
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = padColor;
+      ctx.strokeRect(0, 0, ...footprint.bbox.size);
+      ctx.restore();
+    }
+  }
+  // draw drawings
+  for (var drawing of footprint.drawings) {
+    if (drawing.layer == layer) {
+      drawDrawing(ctx, scalefactor, drawing.drawing, padColor);
+    }
+  }
+  // draw pads
+  if (settings.renderPads) {
+    for (var pad of footprint.pads) {
+      if (pad.layers.includes(layer)) {
+        drawPad(ctx, pad, padColor, outline);
+        if (pad.pin1 && settings.highlightpin1) {
+          drawPad(ctx, pad, outlineColor, true);
+        }
+      }
+    }
+    for (var pad of footprint.pads) {
+      drawPadHole(ctx, pad, padHoleColor);
+    }
+  }
+}
+
+function drawEdgeCuts(canvas, scalefactor) {
+  var ctx = canvas.getContext("2d");
+  var edgecolor = getComputedStyle(topmostdiv).getPropertyValue('--pcb-edge-color');
+  for (var edge of pcbdata.edges) {
+    drawedge(ctx, scalefactor, edge, edgecolor);
+  }
+}
+
+function drawFootprints(canvas, layer, scalefactor, highlight) {
+  var ctx = canvas.getContext("2d");
+  ctx.lineWidth = 3 / scalefactor;
+  var style = getComputedStyle(topmostdiv);
+  var padColor = style.getPropertyValue('--pad-color');
+  var padHoleColor = style.getPropertyValue('--pad-hole-color');
+  var outlineColor = style.getPropertyValue('--pin1-outline-color');
+  if (highlight) {
+    padColor = style.getPropertyValue('--pad-color-highlight');
+    outlineColor = style.getPropertyValue('--pin1-outline-color-highlight');
+  }
+  for (var i = 0; i < pcbdata.footprints.length; i++) {
+    var mod = pcbdata.footprints[i];
+    var outline = settings.renderDnpOutline && pcbdata.bom.skipped.includes(i);
+    if (!highlight || highlightedFootprints.includes(i)) {
+      drawFootprint(ctx, layer, scalefactor, mod, padColor, padHoleColor, outlineColor, highlight, outline);
+    }
+  }
+}
+
+function drawBgLayer(layername, canvas, layer, scalefactor, edgeColor, polygonColor, textColor) {
+  var ctx = canvas.getContext("2d");
+  for (var d of pcbdata.drawings[layername][layer]) {
+    if (["segment", "arc", "circle", "curve", "rect","polyline"].includes(d.type)) {
+      drawedge(ctx, scalefactor, d, edgeColor);
+    } else if (d.type == "polygon") {
+      drawPolygonShape(ctx, d, polygonColor);
+    } else {
+      drawText(ctx, d, textColor);
+    }
+  }
+}
+
+function drawTracks(canvas, layer, color, highlight) {
+  ctx = canvas.getContext("2d");
+  ctx.strokeStyle = color;
+  ctx.lineCap = "round";
+  for(var track of pcbdata.tracks[layer]) {
+    if (highlight && highlightedNet != track.net) continue;
+    ctx.lineWidth = track.width;
+
+    if(track.type === 'polyline') {
+      drawPolylineShape(ctx,track,color);
+    } else {
+      ctx.beginPath();
+      if ('radius' in track) {
+        ctx.arc(
+            ...track.center,
+            track.radius,
+            deg2rad(track.startangle),
+            deg2rad(track.endangle));
+      } else {
+        ctx.moveTo(...track.start);
+        ctx.lineTo(...track.end);
+      }
+      ctx.stroke();
+    }
+
+  }
+}
+
+function drawZones(canvas, layer, color, highlight) {
+  ctx = canvas.getContext("2d");
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineJoin = "round";
+  for(var zone of pcbdata.zones[layer]) {
+    if (!zone.path2d) {
+      zone.path2d = getPolygonsPath(zone);
+    }
+    if (highlight && highlightedNet != zone.net) continue;
+    ctx.fill(zone.path2d);
+    if (zone.width > 0) {
+      ctx.lineWidth = zone.width;
+      ctx.stroke(zone.path2d);
+    }
+  }
+}
+
+function clearCanvas(canvas, color = null) {
+  var ctx = canvas.getContext("2d");
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  ctx.restore();
+}
+
+function drawNets(canvas, layer, highlight) {
+  var style = getComputedStyle(topmostdiv);
+  if (settings.renderTracks) {
+    var trackColor = style.getPropertyValue(highlight ? '--track-color-highlight' : '--track-color');
+    drawTracks(canvas, layer, trackColor, highlight);
+  }
+  if (settings.renderZones) {
+    var zoneColor = style.getPropertyValue(highlight ? '--zone-color-highlight' : '--zone-color');
+    drawZones(canvas, layer, zoneColor, highlight);
+  }
+  if (highlight && settings.renderPads) {
+    var padColor = style.getPropertyValue('--pad-color-highlight');
+    var padHoleColor = style.getPropertyValue('--pad-hole-color');
+    var ctx = canvas.getContext("2d");
+    for (var footprint of pcbdata.footprints) {
+      // draw pads
+      var padDrawn = false;
+      for (var pad of footprint.pads) {
+        if (highlightedNet != pad.net) continue;
+        if (pad.layers.includes(layer)) {
+          drawPad(ctx, pad, padColor, false);
+          padDrawn = true;
+        }
+      }
+      if (padDrawn) {
+        // redraw all pad holes because some pads may overlap
+        for (var pad of footprint.pads) {
+          drawPadHole(ctx, pad, padHoleColor);
+        }
+      }
+    }
+  }
+}
+
+function drawHighlightsOnLayer(canvasdict, clear = true) {
+  if (clear) {
+    clearCanvas(canvasdict.highlight);
+  }
+  if (highlightedFootprints.length > 0) {
+    drawFootprints(canvasdict.highlight, canvasdict.layer,
+      canvasdict.transform.s * canvasdict.transform.zoom, true);
+  }
+  if (highlightedNet !== null) {
+    drawNets(canvasdict.highlight, canvasdict.layer, true);
+  }
+}
+
+function drawHighlights() {
+  drawHighlightsOnLayer(allcanvas.front);
+  drawHighlightsOnLayer(allcanvas.back);
+}
+
+function drawBackground(canvasdict, clear = true) {
+  if (clear) {
+    clearCanvas(canvasdict.bg);
+    clearCanvas(canvasdict.fab);
+    clearCanvas(canvasdict.silk);
+  }
+
+  drawNets(canvasdict.bg, canvasdict.layer, false);
+  drawFootprints(canvasdict.bg, canvasdict.layer,
+    canvasdict.transform.s * canvasdict.transform.zoom, false);
+
+  drawEdgeCuts(canvasdict.bg, canvasdict.transform.s);
+
+  var style = getComputedStyle(topmostdiv);
+  var edgeColor = style.getPropertyValue('--silkscreen-edge-color');
+  var polygonColor = style.getPropertyValue('--silkscreen-polygon-color');
+  var textColor = style.getPropertyValue('--silkscreen-text-color');
+  if (settings.renderSilkscreen) {
+    drawBgLayer(
+      "silkscreen", canvasdict.silk, canvasdict.layer,
+      canvasdict.transform.s * canvasdict.transform.zoom,
+      edgeColor, polygonColor, textColor);
+  }
+  edgeColor = style.getPropertyValue('--fabrication-edge-color');
+  polygonColor = style.getPropertyValue('--fabrication-polygon-color');
+  textColor = style.getPropertyValue('--fabrication-text-color');
+  if (settings.renderFabrication) {
+    drawBgLayer(
+      "fabrication", canvasdict.fab, canvasdict.layer,
+      canvasdict.transform.s * canvasdict.transform.zoom,
+      edgeColor, polygonColor, textColor);
+  }
+}
+
+function prepareCanvas(canvas, flip, transform) {
+  var ctx = canvas.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  var fontsize = 1.55;
+  ctx.scale(transform.zoom, transform.zoom);
+  ctx.translate(transform.panx, transform.pany);
+  if (flip) {
+    ctx.scale(-1, 1);
+  }
+  ctx.translate(transform.x, transform.y);
+  ctx.rotate(deg2rad(settings.boardRotation));
+  ctx.scale(transform.s, transform.s);
+}
+
+function prepareLayer(canvasdict) {
+  var flip = (canvasdict.layer == "B");
+  for (var c of ["bg", "fab", "silk", "highlight"]) {
+    prepareCanvas(canvasdict[c], flip, canvasdict.transform);
+  }
+}
+
+function rotateVector(v, angle) {
+  angle = deg2rad(angle);
+  return [
+    v[0] * Math.cos(angle) - v[1] * Math.sin(angle),
+    v[0] * Math.sin(angle) + v[1] * Math.cos(angle)
+  ];
+}
+
+function applyRotation(bbox) {
+  var corners = [
+    [bbox.minx, bbox.miny],
+    [bbox.minx, bbox.maxy],
+    [bbox.maxx, bbox.miny],
+    [bbox.maxx, bbox.maxy],
+  ];
+  corners = corners.map((v) => rotateVector(v, settings.boardRotation));
+  return {
+    minx: corners.reduce((a, v) => Math.min(a, v[0]), Infinity),
+    miny: corners.reduce((a, v) => Math.min(a, v[1]), Infinity),
+    maxx: corners.reduce((a, v) => Math.max(a, v[0]), -Infinity),
+    maxy: corners.reduce((a, v) => Math.max(a, v[1]), -Infinity),
+  }
+}
+
+function recalcLayerScale(layerdict, width, height) {
+  var bbox = applyRotation(pcbdata.edges_bbox);
+  var scalefactor = 0.98 * Math.min(
+    width / (bbox.maxx - bbox.minx),
+    height / (bbox.maxy - bbox.miny)
+  );
+  if (scalefactor < 0.1) {
+    scalefactor = 1;
+  }
+  layerdict.transform.s = scalefactor;
+  var flip = (layerdict.layer == "B");
+  if (flip) {
+    layerdict.transform.x = -((bbox.maxx + bbox.minx) * scalefactor + width) * 0.5;
+  } else {
+    layerdict.transform.x = -((bbox.maxx + bbox.minx) * scalefactor - width) * 0.5;
+  }
+  layerdict.transform.y = -((bbox.maxy + bbox.miny) * scalefactor - height) * 0.5;
+  for (var c of ["bg", "fab", "silk", "highlight"]) {
+    canvas = layerdict[c];
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = (width / devicePixelRatio) + "px";
+    canvas.style.height = (height / devicePixelRatio) + "px";
+  }
+}
+
+function redrawCanvas(layerdict) {
+  prepareLayer(layerdict);
+  drawBackground(layerdict);
+  drawHighlightsOnLayer(layerdict);
+}
+
+function resizeCanvas(layerdict) {
+  var canvasdivid = {
+    "F": "frontcanvas",
+    "B": "backcanvas"
+  } [layerdict.layer];
+  var width = document.getElementById(canvasdivid).clientWidth * devicePixelRatio;
+  var height = document.getElementById(canvasdivid).clientHeight * devicePixelRatio;
+  recalcLayerScale(layerdict, width, height);
+  redrawCanvas(layerdict);
+}
+
+function resizeAll() {
+  resizeCanvas(allcanvas.front);
+  resizeCanvas(allcanvas.back);
+}
+
+function pointWithinDistanceToSegment(x, y, x1, y1, x2, y2, d) {
+  var A = x - x1;
+  var B = y - y1;
+  var C = x2 - x1;
+  var D = y2 - y1;
+
+  var dot = A * C + B * D;
+  var len_sq = C * C + D * D;
+  var dx, dy;
+  if (len_sq == 0) {
+    // start and end of the segment coincide
+    dx = x - x1;
+    dy = y - y1;
+  } else {
+    var param = dot / len_sq;
+    var xx, yy;
+    if (param < 0) {
+      xx = x1;
+      yy = y1;
+    } else if (param > 1) {
+      xx = x2;
+      yy = y2;
+    } else {
+      xx = x1 + param * C;
+      yy = y1 + param * D;
+    }
+    dx = x - xx;
+    dy = y - yy;
+  }
+  return dx * dx + dy * dy <= d * d;
+}
+
+function modulo(n, mod) {
+  return ((n % mod) + mod ) % mod;
+}
+
+function pointWithinDistanceToArc(x, y, xc, yc, radius, startangle, endangle, d) {
+  var dx = x - xc;
+  var dy = y - yc;
+  var r_sq = dx * dx + dy * dy;
+  var rmin = Math.max(0, radius-d);
+  var rmax = radius + d;
+
+  if (r_sq < rmin * rmin || r_sq > rmax * rmax)
+    return false;
+
+  var angle1 = modulo(deg2rad(startangle), 2 * Math.PI);
+  var dx1 = xc + radius * Math.cos(angle1) - x;
+  var dy1 = yc + radius * Math.sin(angle1) - y;
+  if (dx1 * dx1 + dy1 * dy1 <= d * d)
+    return true;
+
+  var angle2 = modulo(deg2rad(endangle), 2 * Math.PI);
+  var dx2 = xc + radius * Math.cos(angle2) - x;
+  var dy2 = yc + radius * Math.sin(angle2) - y;
+  if (dx2 * dx2 + dy2 * dy2 <= d * d)
+    return true;
+
+  var angle = modulo(Math.atan2(dy, dx), 2 * Math.PI);
+  if (angle1 > angle2)
+    return (angle >= angle2 || angle <= angle1);
+  else
+    return (angle >= angle1 && angle <= angle2);
+}
+
+function pointWithinPad(x, y, pad) {
+  var v = [x - pad.pos[0], y - pad.pos[1]];
+  v = rotateVector(v, -pad.angle);
+  if (pad.offset) {
+    v[0] -= pad.offset[0];
+    v[1] -= pad.offset[1];
+  }
+  return emptyContext2d.isPointInPath(getCachedPadPath(pad), ...v);
+}
+
+function netHitScan(layer, x, y) {
+  // Check track segments
+  if (settings.renderTracks && pcbdata.tracks) {
+    for(var track of pcbdata.tracks[layer]) {
+      if ('radius' in track) {
+        if (pointWithinDistanceToArc(x, y, ...track.center, track.radius, track.startangle, track.endangle, track.width / 2)) {
+          return track.net;
+        }
+      } else {
+        if (pointWithinDistanceToSegment(x, y, ...track.start, ...track.end, track.width / 2)) {
+          return track.net;
+        }
+      }
+    }
+  }
+  // Check pads
+  if (settings.renderPads) {
+    for (var footprint of pcbdata.footprints) {
+      for(var pad of footprint.pads) {
+        if (pad.layers.includes(layer) && pointWithinPad(x, y, pad)) {
+          return pad.net;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function pointWithinFootprintBbox(x, y, bbox) {
+  var v = [x - bbox.pos[0], y - bbox.pos[1]];
+  v = rotateVector(v, bbox.angle);
+  return bbox.relpos[0] <= v[0] && v[0] <= bbox.relpos[0] + bbox.size[0] &&
+         bbox.relpos[1] <= v[1] && v[1] <= bbox.relpos[1] + bbox.size[1];
+}
+
+function bboxHitScan(layer, x, y) {
+  var result = [];
+  for (var i = 0; i < pcbdata.footprints.length; i++) {
+    var footprint = pcbdata.footprints[i];
+    if (footprint.layer == layer) {
+      if (pointWithinFootprintBbox(x, y, footprint.bbox)) {
+        result.push(i);
+      }
+    }
+  }
+  return result;
+}
+
+function handlePointerDown(e, layerdict) {
+  if (e.button != 0 && e.button != 1) {
+    return;
+  }
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (!e.hasOwnProperty("offsetX")) {
+    // The polyfill doesn't set this properly
+    e.offsetX = e.pageX - e.currentTarget.offsetLeft;
+    e.offsetY = e.pageY - e.currentTarget.offsetTop;
+  }
+
+  layerdict.pointerStates[e.pointerId] = {
+    distanceTravelled: 0,
+    lastX: e.offsetX,
+    lastY: e.offsetY,
+    downTime: Date.now(),
+  };
+}
+
+function handleMouseClick(e, layerdict) {
+  if (!e.hasOwnProperty("offsetX")) {
+    // The polyfill doesn't set this properly
+    e.offsetX = e.pageX - e.currentTarget.offsetLeft;
+    e.offsetY = e.pageY - e.currentTarget.offsetTop;
+  }
+
+  var x = e.offsetX;
+  var y = e.offsetY;
+  var t = layerdict.transform;
+  if (layerdict.layer == "B") {
+    x = (devicePixelRatio * x / t.zoom - t.panx + t.x) / -t.s;
+  } else {
+    x = (devicePixelRatio * x / t.zoom - t.panx - t.x) / t.s;
+  }
+  y = (devicePixelRatio * y / t.zoom - t.y - t.pany) / t.s;
+  var v = rotateVector([x, y], -settings.boardRotation);
+  if ("nets" in pcbdata) {
+    var net = netHitScan(layerdict.layer, ...v);
+    if (net !== highlightedNet) {
+      netClicked(net);
+    }
+  }
+  if (highlightedNet === null) {
+    var footprints = bboxHitScan(layerdict.layer, ...v);
+    if (footprints.length > 0) {
+      footprintsClicked(footprints);
+    }
+  }
+}
+
+function handlePointerLeave(e, layerdict) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (!settings.redrawOnDrag) {
+    redrawCanvas(layerdict);
+  }
+
+  delete layerdict.pointerStates[e.pointerId];
+}
+
+function resetTransform(layerdict) {
+  layerdict.transform.panx = 0;
+  layerdict.transform.pany = 0;
+  layerdict.transform.zoom = 1;
+  redrawCanvas(layerdict);
+}
+
+function handlePointerUp(e, layerdict) {
+  if (!e.hasOwnProperty("offsetX")) {
+    // The polyfill doesn't set this properly
+    e.offsetX = e.pageX - e.currentTarget.offsetLeft;
+    e.offsetY = e.pageY - e.currentTarget.offsetTop;
+  }
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (e.button == 2) {
+    // Reset pan and zoom on right click.
+    resetTransform(layerdict);
+    layerdict.anotherPointerTapped = false;
+    return;
+  }
+
+  // We haven't necessarily had a pointermove event since the interaction started, so make sure we update this now
+  var ptr = layerdict.pointerStates[e.pointerId];
+  ptr.distanceTravelled += Math.abs(e.offsetX - ptr.lastX) + Math.abs(e.offsetY - ptr.lastY);
+
+  if (e.button == 0 && ptr.distanceTravelled < 10 && Date.now() - ptr.downTime <= 500) {
+    if (Object.keys(layerdict.pointerStates).length == 1) {
+      if (layerdict.anotherPointerTapped) {
+        // This is the second pointer coming off of a two-finger tap
+        resetTransform(layerdict);
+      } else {
+        // This is just a regular tap
+        handleMouseClick(e, layerdict);
+      }
+      layerdict.anotherPointerTapped = false;
+    } else {
+      // This is the first finger coming off of what could become a two-finger tap
+      layerdict.anotherPointerTapped = true;
+    }
+  } else {
+    if (!settings.redrawOnDrag) {
+      redrawCanvas(layerdict);
+    }
+    layerdict.anotherPointerTapped = false;
+  }
+
+  delete layerdict.pointerStates[e.pointerId];
+}
+
+function handlePointerMove(e, layerdict) {
+  if (!layerdict.pointerStates.hasOwnProperty(e.pointerId)) {
+    return;
+  }
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (!e.hasOwnProperty("offsetX")) {
+    // The polyfill doesn't set this properly
+    e.offsetX = e.pageX - e.currentTarget.offsetLeft;
+    e.offsetY = e.pageY - e.currentTarget.offsetTop;
+  }
+
+  var thisPtr = layerdict.pointerStates[e.pointerId];
+
+  var dx = e.offsetX - thisPtr.lastX;
+  var dy = e.offsetY - thisPtr.lastY;
+
+  // If this number is low on pointer up, we count the action as a click
+  thisPtr.distanceTravelled += Math.abs(dx) + Math.abs(dy);
+
+  if (Object.keys(layerdict.pointerStates).length == 1) {
+    // This is a simple drag
+    layerdict.transform.panx += devicePixelRatio * dx / layerdict.transform.zoom;
+    layerdict.transform.pany += devicePixelRatio * dy / layerdict.transform.zoom;
+  } else if (Object.keys(layerdict.pointerStates).length == 2) {
+    var otherPtr = Object.values(layerdict.pointerStates).filter((ptr) => ptr != thisPtr)[0];
+
+    var oldDist = Math.sqrt(Math.pow(thisPtr.lastX - otherPtr.lastX, 2) + Math.pow(thisPtr.lastY - otherPtr.lastY, 2));
+    var newDist = Math.sqrt(Math.pow(e.offsetX - otherPtr.lastX, 2)     + Math.pow(e.offsetY - otherPtr.lastY, 2));
+
+    var scaleFactor = newDist/oldDist;
+
+    if (scaleFactor != NaN) {
+      layerdict.transform.zoom *= scaleFactor;
+
+      var zoomd = (1 - scaleFactor) / layerdict.transform.zoom;
+      layerdict.transform.panx += devicePixelRatio * otherPtr.lastX * zoomd;
+      layerdict.transform.pany += devicePixelRatio * otherPtr.lastY * zoomd;
+    }
+  }
+
+  thisPtr.lastX = e.offsetX;
+  thisPtr.lastY = e.offsetY;
+
+  if (settings.redrawOnDrag) {
+    redrawCanvas(layerdict);
+  }
+}
+
+function handleMouseWheel(e, layerdict) {
+  e.preventDefault();
+  e.stopPropagation();
+  var t = layerdict.transform;
+  var wheeldelta = e.deltaY;
+  if (e.deltaMode == 1) {
+    // FF only, scroll by lines
+    wheeldelta *= 30;
+  } else if (e.deltaMode == 2) {
+    wheeldelta *= 300;
+  }
+  var m = Math.pow(1.1, -wheeldelta / 40);
+  // Limit amount of zoom per tick.
+  if (m > 2) {
+    m = 2;
+  } else if (m < 0.5) {
+    m = 0.5;
+  }
+  t.zoom *= m;
+  var zoomd = (1 - m) / t.zoom;
+  t.panx += devicePixelRatio * e.offsetX * zoomd;
+  t.pany += devicePixelRatio * e.offsetY * zoomd;
+  redrawCanvas(layerdict);
+}
+
+function addMouseHandlers(div, layerdict) {
+  div.addEventListener("pointerdown", function(e) {
+    handlePointerDown(e, layerdict);
+  });
+  div.addEventListener("pointermove", function(e) {
+    handlePointerMove(e, layerdict);
+  });
+  div.addEventListener("pointerup", function(e) {
+    handlePointerUp(e, layerdict);
+  });
+  var pointerleave = function(e) {
+    handlePointerLeave(e, layerdict);
+  }
+  div.addEventListener("pointercancel", pointerleave);
+  div.addEventListener("pointerleave", pointerleave);
+  div.addEventListener("pointerout", pointerleave);
+
+  div.onwheel = function(e) {
+    handleMouseWheel(e, layerdict);
+  }
+  for (var element of [div, layerdict.bg, layerdict.fab, layerdict.silk, layerdict.highlight]) {
+    element.addEventListener("contextmenu", function(e) {
+      e.preventDefault();
+    }, false);
+  }
+}
+
+function setRedrawOnDrag(value) {
+  settings.redrawOnDrag = value;
+  writeStorage("redrawOnDrag", value);
+}
+
+function setBoardRotation(value) {
+  settings.boardRotation = value * 5;
+  writeStorage("boardRotation", settings.boardRotation);
+  document.getElementById("rotationDegree").textContent = settings.boardRotation;
+  resizeAll();
+}
+
+function initRender() {
+  allcanvas = {
+    front: {
+      transform: {
+        x: 0,
+        y: 0,
+        s: 1,
+        panx: 0,
+        pany: 0,
+        zoom: 1,
+      },
+      pointerStates: {},
+      anotherPointerTapped: false,
+      bg: document.getElementById("F_bg"),
+      fab: document.getElementById("F_fab"),
+      silk: document.getElementById("F_slk"),
+      highlight: document.getElementById("F_hl"),
+      layer: "F",
+    },
+    back: {
+      transform: {
+        x: 0,
+        y: 0,
+        s: 1,
+        panx: 0,
+        pany: 0,
+        zoom: 1,
+      },
+      pointerStates: {},
+      anotherPointerTapped: false,
+      bg: document.getElementById("B_bg"),
+      fab: document.getElementById("B_fab"),
+      silk: document.getElementById("B_slk"),
+      highlight: document.getElementById("B_hl"),
+      layer: "B",
+    }
+  };
+  addMouseHandlers(document.getElementById("frontcanvas"), allcanvas.front);
+  addMouseHandlers(document.getElementById("backcanvas"), allcanvas.back);
+}
+
+///////////////////////////////////////////////
+
+///////////////////////////////////////////////
+/* DOM manipulation and misc code */
+
+var bomsplit;
+var canvassplit;
+var initDone = false;
+var bomSortFunction = null;
+var currentSortColumn = null;
+var currentSortOrder = null;
+var currentHighlightedRowId;
+var highlightHandlers = [];
+var footprintIndexToHandler = {};
+var netsToHandler = {};
+var highlightedFootprints = [];
+var highlightedNet = null;
+var lastClicked;
+
+function dbg(html) {
+  dbgdiv.innerHTML = html;
+}
+
+function redrawIfInitDone() {
+  if (initDone) {
+    redrawCanvas(allcanvas.front);
+    redrawCanvas(allcanvas.back);
+  }
+}
+
+function padsVisible(value) {
+  writeStorage("padsVisible", value);
+  settings.renderPads = value;
+  redrawIfInitDone();
+}
+
+function referencesVisible(value) {
+  writeStorage("referencesVisible", value);
+  settings.renderReferences = value;
+  redrawIfInitDone();
+}
+
+function valuesVisible(value) {
+  writeStorage("valuesVisible", value);
+  settings.renderValues = value;
+  redrawIfInitDone();
+}
+
+function tracksVisible(value) {
+  writeStorage("tracksVisible", value);
+  settings.renderTracks = value;
+  redrawIfInitDone();
+}
+
+function zonesVisible(value) {
+  writeStorage("zonesVisible", value);
+  settings.renderZones = value;
+  redrawIfInitDone();
+}
+
+function dnpOutline(value) {
+  writeStorage("dnpOutline", value);
+  settings.renderDnpOutline = value;
+  redrawIfInitDone();
+}
+
+function setDarkMode(value) {
+  if (value) {
+    topmostdiv.classList.add("dark");
+  } else {
+    topmostdiv.classList.remove("dark");
+  }
+  writeStorage("darkmode", value);
+  settings.darkMode = value;
+  redrawIfInitDone();
+}
+
+function setFullscreen(value) {
+  if (value) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+function fabricationVisible(value) {
+  writeStorage("fabricationVisible", value);
+  settings.renderFabrication = value;
+  redrawIfInitDone();
+}
+
+function silkscreenVisible(value) {
+  writeStorage("silkscreenVisible", value);
+  settings.renderSilkscreen = value;
+  redrawIfInitDone();
+}
+
+function setHighlightPin1(value) {
+  writeStorage("highlightpin1", value);
+  settings.highlightpin1 = value;
+  redrawIfInitDone();
+}
+
+function getStoredCheckboxRefs(checkbox) {
+  function convert(ref) {
+    var intref = parseInt(ref);
+    if (isNaN(intref)) {
+      for (var i = 0; i < pcbdata.footprints.length; i++) {
+        if (pcbdata.footprints[i].ref == ref) {
+          return i;
+        }
+      }
+      return -1;
+    } else {
+      return intref;
+    }
+  }
+  if (!(checkbox in settings.checkboxStoredRefs)) {
+    var val = readStorage("checkbox_" + checkbox);
+    settings.checkboxStoredRefs[checkbox] = val ? val : "";
+  }
+  if (!settings.checkboxStoredRefs[checkbox]) {
+    return new Set();
+  } else {
+    return new Set(settings.checkboxStoredRefs[checkbox].split(",").map(r => convert(r)).filter(a => a >= 0));
+  }
+}
+
+function getCheckboxState(checkbox, references) {
+  var storedRefsSet = getStoredCheckboxRefs(checkbox);
+  var currentRefsSet = new Set(references.map(r => r[1]));
+  // Get difference of current - stored
+  var difference = new Set(currentRefsSet);
+  for (ref of storedRefsSet) {
+    difference.delete(ref);
+  }
+  if (difference.size == 0) {
+    // All the current refs are stored
+    return "checked";
+  } else if (difference.size == currentRefsSet.size) {
+    // None of the current refs are stored
+    return "unchecked";
+  } else {
+    // Some of the refs are stored
+    return "indeterminate";
+  }
+}
+
+function setBomCheckboxState(checkbox, element, references) {
+  var state = getCheckboxState(checkbox, references);
+  element.checked = (state == "checked");
+  element.indeterminate = (state == "indeterminate");
+}
+
+function createCheckboxChangeHandler(checkbox, references, row) {
+  return function() {
+    refsSet = getStoredCheckboxRefs(checkbox);
+    var darkenWhenChecked = settings.darkenWhenChecked == checkbox;
+    eventArgs = {
+      checkbox: checkbox,
+      refs: references,
+    }
+    if (this.checked) {
+      // checkbox ticked
+      for (var ref of references) {
+        refsSet.add(ref[1]);
+      }
+      if (darkenWhenChecked) {
+        row.classList.add("checked");
+      }
+      eventArgs.state = 'checked';
+    } else {
+      // checkbox unticked
+      for (var ref of references) {
+        refsSet.delete(ref[1]);
+      }
+      if (darkenWhenChecked) {
+        row.classList.remove("checked");
+      }
+      eventArgs.state = 'unchecked';
+    }
+    settings.checkboxStoredRefs[checkbox] = [...refsSet].join(",");
+    writeStorage("checkbox_" + checkbox, settings.checkboxStoredRefs[checkbox]);
+    updateCheckboxStats(checkbox);
+    EventHandler.emitEvent(IBOM_EVENT_TYPES.CHECKBOX_CHANGE_EVENT, eventArgs);
+  }
+}
+
+function clearHighlightedFootprints() {
+  if (currentHighlightedRowId) {
+    document.getElementById(currentHighlightedRowId).classList.remove("highlighted");
+    currentHighlightedRowId = null;
+    highlightedFootprints = [];
+    highlightedNet = null;
+  }
+}
+
+function createRowHighlightHandler(rowid, refs, net) {
+  return function() {
+    if (currentHighlightedRowId) {
+      if (currentHighlightedRowId == rowid) {
+        return;
+      }
+      document.getElementById(currentHighlightedRowId).classList.remove("highlighted");
+    }
+    document.getElementById(rowid).classList.add("highlighted");
+    currentHighlightedRowId = rowid;
+    highlightedFootprints = refs ? refs.map(r => r[1]) : [];
+    highlightedNet = net;
+    drawHighlights();
+    EventHandler.emitEvent(
+      IBOM_EVENT_TYPES.HIGHLIGHT_EVENT,
+      {
+        rowid: rowid,
+        refs: refs,
+        net: net
+      });
+  }
+}
+
+function entryMatches(entry) {
+  if (settings.bommode == "netlist") {
+    // entry is just a net name
+    return entry.toLowerCase().indexOf(filter) >= 0;
+  }
+  // check refs
+  for (var ref of entry[3]) {
+    if (ref[0].toLowerCase().indexOf(filter) >= 0) {
+      return true;
+    }
+  }
+  // check extra fields
+  for (var i in config.extra_fields) {
+    if (entry[4][i].toLowerCase().indexOf(filter) >= 0) {
+      return true;
+    }
+  }
+  // check value
+  if (entry[1].toLowerCase().indexOf(filter) >= 0) {
+    return true;
+  }
+  // check footprint
+  if (entry[2].toLowerCase().indexOf(filter) >= 0) {
+    return true;
+  }
+  return false;
+}
+
+function findRefInEntry(entry) {
+  return entry[3].filter(r => r[0].toLowerCase() == reflookup);
+}
+
+function highlightFilter(s) {
+  if (!filter) {
+    return s;
+  }
+  var parts = s.toLowerCase().split(filter);
+  if (parts.length == 1) {
+    return s;
+  }
+  var r = "";
+  var pos = 0;
+  for (var i in parts) {
+    if (i > 0) {
+      r += '<mark class="highlight">' +
+        s.substring(pos, pos + filter.length) +
+        '</mark>';
+      pos += filter.length;
+    }
+    r += s.substring(pos, pos + parts[i].length);
+    pos += parts[i].length;
+  }
+  return r;
+}
+
+function checkboxSetUnsetAllHandler(checkboxname) {
+  return function() {
+    var checkboxnum = 0;
+    while (checkboxnum < settings.checkboxes.length &&
+      settings.checkboxes[checkboxnum].toLowerCase() != checkboxname.toLowerCase()) {
+      checkboxnum++;
+    }
+    if (checkboxnum >= settings.checkboxes.length) {
+      return;
+    }
+    var allset = true;
+    var checkbox;
+    var row;
+    for (row of bombody.childNodes) {
+      checkbox = row.childNodes[checkboxnum + 1].childNodes[0];
+      if (!checkbox.checked || checkbox.indeterminate) {
+        allset = false;
+        break;
+      }
+    }
+    for (row of bombody.childNodes) {
+      checkbox = row.childNodes[checkboxnum + 1].childNodes[0];
+      checkbox.checked = !allset;
+      checkbox.indeterminate = false;
+      checkbox.onchange();
+    }
+  }
+}
+
+function createColumnHeader(name, cls, comparator) {
+  var th = document.createElement("TH");
+  th.innerHTML = name;
+  th.classList.add(cls);
+  th.style.cursor = "pointer";
+  var span = document.createElement("SPAN");
+  span.classList.add("sortmark");
+  span.classList.add("none");
+  th.appendChild(span);
+  th.onclick = function() {
+    if (currentSortColumn && this !== currentSortColumn) {
+      // Currently sorted by another column
+      currentSortColumn.childNodes[1].classList.remove(currentSortOrder);
+      currentSortColumn.childNodes[1].classList.add("none");
+      currentSortColumn = null;
+      currentSortOrder = null;
+    }
+    if (currentSortColumn && this === currentSortColumn) {
+      // Already sorted by this column
+      if (currentSortOrder == "asc") {
+        // Sort by this column, descending order
+        bomSortFunction = function(a, b) {
+          return -comparator(a, b);
+        }
+        currentSortColumn.childNodes[1].classList.remove("asc");
+        currentSortColumn.childNodes[1].classList.add("desc");
+        currentSortOrder = "desc";
+      } else {
+        // Unsort
+        bomSortFunction = null;
+        currentSortColumn.childNodes[1].classList.remove("desc");
+        currentSortColumn.childNodes[1].classList.add("none");
+        currentSortColumn = null;
+        currentSortOrder = null;
+      }
+    } else {
+      // Sort by this column, ascending order
+      bomSortFunction = comparator;
+      currentSortColumn = this;
+      currentSortColumn.childNodes[1].classList.remove("none");
+      currentSortColumn.childNodes[1].classList.add("asc");
+      currentSortOrder = "asc";
+    }
+    populateBomBody();
+  }
+  return th;
+}
+
+function populateBomHeader() {
+  while (bomhead.firstChild) {
+    bomhead.removeChild(bomhead.firstChild);
+  }
+  var tr = document.createElement("TR");
+  var th = document.createElement("TH");
+  th.classList.add("numCol");
+  tr.appendChild(th);
+  var checkboxCompareClosure = function(checkbox) {
+    return (a, b) => {
+      var stateA = getCheckboxState(checkbox, a[3]);
+      var stateB = getCheckboxState(checkbox, b[3]);
+      if (stateA > stateB) return -1;
+      if (stateA < stateB) return 1;
+      return 0;
+    }
+  }
+  if (settings.bommode == "netlist") {
+    th = createColumnHeader("Net name", "bom-netname", (a, b) => {
+      if (a > b) return -1;
+      if (a < b) return 1;
+      return 0;
+    });
+    tr.appendChild(th);
+  } else {
+    for (var checkbox of settings.checkboxes) {
+      th = createColumnHeader(
+        checkbox, "bom-checkbox", checkboxCompareClosure(checkbox));
+      th.onclick = fancyDblClickHandler(
+        th, th.onclick.bind(th), checkboxSetUnsetAllHandler(checkbox));
+      tr.appendChild(th);
+    }
+    tr.appendChild(createColumnHeader("References", "References", (a, b) => {
+      var i = 0;
+      while (i < a[3].length && i < b[3].length) {
+        if (a[3][i] != b[3][i]) return a[3][i] > b[3][i] ? 1 : -1;
+        i++;
+      }
+      return a[3].length - b[3].length;
+    }));
+    // Extra fields
+    if (config.extra_fields.length > 0) {
+      var extraFieldCompareClosure = function(fieldIndex) {
+        return (a, b) => {
+          var fa = a[4][fieldIndex];
+          var fb = b[4][fieldIndex];
+          if (fa != fb) return fa > fb ? 1 : -1;
+          else return 0;
+        }
+      }
+      for (var i in config.extra_fields) {
+        tr.appendChild(createColumnHeader(
+          config.extra_fields[i], "extra", extraFieldCompareClosure(i)));
+      }
+    }
+    tr.appendChild(createColumnHeader("Value", "Value", (a, b) => {
+      return valueCompare(a[5], b[5], a[1], b[1]);
+    }));
+    tr.appendChild(createColumnHeader("Footprint", "Footprint", (a, b) => {
+      if (a[2] != b[2]) return a[2] > b[2] ? 1 : -1;
+      else return 0;
+    }));
+    if (settings.bommode == "grouped") {
+      tr.appendChild(createColumnHeader("Quantity", "Quantity", (a, b) => {
+        return a[3].length - b[3].length;
+      }));
+    }
+  }
+  bomhead.appendChild(tr);
+}
+
+function populateBomBody() {
+  while (bom.firstChild) {
+    bom.removeChild(bom.firstChild);
+  }
+  highlightHandlers = [];
+  footprintIndexToHandler = {};
+  netsToHandler = {};
+  currentHighlightedRowId = null;
+  var first = true;
+  if (settings.bommode == "netlist") {
+    bomtable = pcbdata.nets.slice();
+  } else {
+    switch (settings.canvaslayout) {
+      case 'F':
+        bomtable = pcbdata.bom.F.slice();
+        break;
+      case 'FB':
+        bomtable = pcbdata.bom.both.slice();
+        break;
+      case 'B':
+        bomtable = pcbdata.bom.B.slice();
+        break;
+    }
+    if (settings.bommode == "ungrouped") {
+      // expand bom table
+      expandedTable = []
+      for (var bomentry of bomtable) {
+        for (var ref of bomentry[3]) {
+          expandedTable.push([1, bomentry[1], bomentry[2], [ref], bomentry[4], bomentry[5]]);
+        }
+      }
+      bomtable = expandedTable;
+    }
+  }
+  if (bomSortFunction) {
+    bomtable = bomtable.sort(bomSortFunction);
+  }
+  for (var i in bomtable) {
+    var bomentry = bomtable[i];
+    if (filter && !entryMatches(bomentry)) {
+      continue;
+    }
+    var references = null;
+    var netname = null;
+    var tr = document.createElement("TR");
+    var td = document.createElement("TD");
+    var rownum = +i + 1;
+    tr.id = "bomrow" + rownum;
+    td.textContent = rownum;
+    tr.appendChild(td);
+    if (settings.bommode == "netlist") {
+      netname = bomentry;
+      td = document.createElement("TD");
+      td.innerHTML = highlightFilter(netname ? netname : "&lt;no net&gt;");
+      tr.appendChild(td);
+    } else {
+      if (reflookup) {
+        references = findRefInEntry(bomentry);
+        if (references.length == 0) {
+          continue;
+        }
+      } else {
+        references = bomentry[3];
+      }
+      // Checkboxes
+      for (var checkbox of settings.checkboxes) {
+        if (checkbox) {
+          td = document.createElement("TD");
+          var input = document.createElement("input");
+          input.type = "checkbox";
+          input.onchange = createCheckboxChangeHandler(checkbox, references, tr);
+          setBomCheckboxState(checkbox, input, references);
+          if (input.checked && settings.darkenWhenChecked == checkbox) {
+            tr.classList.add("checked");
+          }
+          td.appendChild(input);
+          tr.appendChild(td);
+        }
+      }
+      // References
+      td = document.createElement("TD");
+      td.innerHTML = highlightFilter(references.map(r => r[0]).join(", "));
+      tr.appendChild(td);
+      // Extra fields
+      for (var i in config.extra_fields) {
+        td = document.createElement("TD");
+        td.innerHTML = highlightFilter(bomentry[4][i]);
+        tr.appendChild(td);
+      }
+      // Value
+      td = document.createElement("TD");
+      td.innerHTML = highlightFilter(bomentry[1]);
+      tr.appendChild(td);
+      // Footprint
+      td = document.createElement("TD");
+      td.innerHTML = highlightFilter(bomentry[2]);
+      tr.appendChild(td);
+      if (settings.bommode == "grouped") {
+        // Quantity
+        td = document.createElement("TD");
+        td.textContent = bomentry[3].length;
+        tr.appendChild(td);
+      }
+    }
+    bom.appendChild(tr);
+    var handler = createRowHighlightHandler(tr.id, references, netname);
+    tr.onmousemove = handler;
+    highlightHandlers.push({
+      id: tr.id,
+      handler: handler,
+    });
+    if (references !== null) {
+      for (var refIndex of references.map(r => r[1])) {
+        footprintIndexToHandler[refIndex] = handler;
+      }
+    }
+    if (netname !== null) {
+      netsToHandler[netname] = handler;
+    }
+    if ((filter || reflookup) && first) {
+      handler();
+      first = false;
+    }
+  }
+  EventHandler.emitEvent(
+    IBOM_EVENT_TYPES.BOM_BODY_CHANGE_EVENT,
+    {
+      filter: filter,
+      reflookup: reflookup,
+      checkboxes: settings.checkboxes,
+      bommode: settings.bommode,
+    });
+}
+
+function highlightPreviousRow() {
+  if (!currentHighlightedRowId) {
+    highlightHandlers[highlightHandlers.length - 1].handler();
+  } else {
+    if (highlightHandlers.length > 1 &&
+      highlightHandlers[0].id == currentHighlightedRowId) {
+      highlightHandlers[highlightHandlers.length - 1].handler();
+    } else {
+      for (var i = 0; i < highlightHandlers.length - 1; i++) {
+        if (highlightHandlers[i + 1].id == currentHighlightedRowId) {
+          highlightHandlers[i].handler();
+          break;
+        }
+      }
+    }
+  }
+  smoothScrollToRow(currentHighlightedRowId);
+}
+
+function highlightNextRow() {
+  if (!currentHighlightedRowId) {
+    highlightHandlers[0].handler();
+  } else {
+    if (highlightHandlers.length > 1 &&
+      highlightHandlers[highlightHandlers.length - 1].id == currentHighlightedRowId) {
+      highlightHandlers[0].handler();
+    } else {
+      for (var i = 1; i < highlightHandlers.length; i++) {
+        if (highlightHandlers[i - 1].id == currentHighlightedRowId) {
+          highlightHandlers[i].handler();
+          break;
+        }
+      }
+    }
+  }
+  smoothScrollToRow(currentHighlightedRowId);
+}
+
+function populateBomTable() {
+  populateBomHeader();
+  populateBomBody();
+}
+
+function footprintsClicked(footprintIndexes) {
+  var lastClickedIndex = footprintIndexes.indexOf(lastClicked);
+  for (var i = 1; i <= footprintIndexes.length; i++) {
+    var refIndex = footprintIndexes[(lastClickedIndex + i) % footprintIndexes.length];
+    if (refIndex in footprintIndexToHandler) {
+      lastClicked = refIndex;
+      footprintIndexToHandler[refIndex]();
+      smoothScrollToRow(currentHighlightedRowId);
+      break;
+    }
+  }
+}
+
+function netClicked(net) {
+  if (net in netsToHandler) {
+    netsToHandler[net]();
+    smoothScrollToRow(currentHighlightedRowId);
+  } else {
+    clearHighlightedFootprints();
+    highlightedNet = net;
+    drawHighlights();
+  }
+}
+
+function updateFilter(input) {
+  filter = input.toLowerCase();
+  populateBomTable();
+}
+
+function updateRefLookup(input) {
+  reflookup = input.toLowerCase();
+  populateBomTable();
+}
+
+function changeCanvasLayout(layout) {
+  document.getElementById("fl-btn").classList.remove("depressed");
+  document.getElementById("fb-btn").classList.remove("depressed");
+  document.getElementById("bl-btn").classList.remove("depressed");
+  switch (layout) {
+    case 'F':
+      document.getElementById("fl-btn").classList.add("depressed");
+      if (settings.bomlayout != "bom-only") {
+        canvassplit.collapse(1);
+      }
+      break;
+    case 'B':
+      document.getElementById("bl-btn").classList.add("depressed");
+      if (settings.bomlayout != "bom-only") {
+        canvassplit.collapse(0);
+      }
+      break;
+    default:
+      document.getElementById("fb-btn").classList.add("depressed");
+      if (settings.bomlayout != "bom-only") {
+        canvassplit.setSizes([50, 50]);
+      }
+  }
+  settings.canvaslayout = layout;
+  writeStorage("canvaslayout", layout);
+  resizeAll();
+  changeBomMode(settings.bommode);
+}
+
+function populateMetadata() {
+  document.getElementById("title").innerHTML = pcbdata.metadata.title;
+  document.getElementById("revision").innerHTML = "Rev: " + pcbdata.metadata.revision;
+  document.getElementById("company").innerHTML = pcbdata.metadata.company;
+  document.getElementById("filedate").innerHTML = pcbdata.metadata.date;
+  if (pcbdata.metadata.title != "") {
+    document.title = pcbdata.metadata.title + " BOM";
+  }
+  // Calculate board stats
+  var fp_f = 0, fp_b = 0, pads_f = 0, pads_b = 0, pads_th = 0;
+  for (var i = 0; i < pcbdata.footprints.length; i++) {
+    if (pcbdata.bom.skipped.includes(i)) continue;
+    var mod = pcbdata.footprints[i];
+    if (mod.layer == "F") {
+      fp_f++;
+    } else {
+      fp_b++;
+    }
+    for (var pad of mod.pads) {
+      if (pad.type == "th") {
+        pads_th++;
+      } else {
+        if (pad.layers.includes("F")) {
+          pads_f++;
+        }
+        if (pad.layers.includes("B")) {
+          pads_b++;
+        }
+      }
+    }
+  }
+  document.getElementById("stats-components-front").innerHTML = fp_f;
+  document.getElementById("stats-components-back").innerHTML = fp_b;
+  document.getElementById("stats-components-total").innerHTML = fp_f + fp_b;
+  document.getElementById("stats-groups-front").innerHTML = pcbdata.bom.F.length;
+  document.getElementById("stats-groups-back").innerHTML = pcbdata.bom.B.length;
+  document.getElementById("stats-groups-total").innerHTML = pcbdata.bom.both.length;
+  document.getElementById("stats-smd-pads-front").innerHTML = pads_f;
+  document.getElementById("stats-smd-pads-back").innerHTML = pads_b;
+  document.getElementById("stats-smd-pads-total").innerHTML = pads_f + pads_b;
+  document.getElementById("stats-th-pads").innerHTML = pads_th;
+  // Update version string
+  document.getElementById("github-link").innerHTML = "InteractiveHtmlBom&nbsp;" +
+    /^v\d+\.\d+/.exec(pcbdata.ibom_version)[0];
+}
+
+function changeBomLayout(layout) {
+  document.getElementById("bom-btn").classList.remove("depressed");
+  document.getElementById("lr-btn").classList.remove("depressed");
+  document.getElementById("tb-btn").classList.remove("depressed");
+  switch (layout) {
+    case 'bom-only':
+      document.getElementById("bom-btn").classList.add("depressed");
+      if (bomsplit) {
+        bomsplit.destroy();
+        bomsplit = null;
+        canvassplit.destroy();
+        canvassplit = null;
+      }
+      document.getElementById("frontcanvas").style.display = "none";
+      document.getElementById("backcanvas").style.display = "none";
+      document.getElementById("bot").style.height = "";
+      break;
+    case 'top-bottom':
+      document.getElementById("tb-btn").classList.add("depressed");
+      document.getElementById("frontcanvas").style.display = "";
+      document.getElementById("backcanvas").style.display = "";
+      document.getElementById("bot").style.height = "calc(100% - 80px)";
+      document.getElementById("bomdiv").classList.remove("split-horizontal");
+      document.getElementById("canvasdiv").classList.remove("split-horizontal");
+      document.getElementById("frontcanvas").classList.add("split-horizontal");
+      document.getElementById("backcanvas").classList.add("split-horizontal");
+      if (bomsplit) {
+        bomsplit.destroy();
+        bomsplit = null;
+        canvassplit.destroy();
+        canvassplit = null;
+      }
+      bomsplit = Split(['#bomdiv', '#canvasdiv'], {
+        sizes: [50, 50],
+        onDragEnd: resizeAll,
+        direction: "vertical",
+        gutterSize: 5
+      });
+      canvassplit = Split(['#frontcanvas', '#backcanvas'], {
+        sizes: [50, 50],
+        gutterSize: 5,
+        onDragEnd: resizeAll
+      });
+      break;
+    case 'left-right':
+      document.getElementById("lr-btn").classList.add("depressed");
+      document.getElementById("frontcanvas").style.display = "";
+      document.getElementById("backcanvas").style.display = "";
+      document.getElementById("bot").style.height = "calc(100% - 80px)";
+      document.getElementById("bomdiv").classList.add("split-horizontal");
+      document.getElementById("canvasdiv").classList.add("split-horizontal");
+      document.getElementById("frontcanvas").classList.remove("split-horizontal");
+      document.getElementById("backcanvas").classList.remove("split-horizontal");
+      if (bomsplit) {
+        bomsplit.destroy();
+        bomsplit = null;
+        canvassplit.destroy();
+        canvassplit = null;
+      }
+      bomsplit = Split(['#bomdiv', '#canvasdiv'], {
+        sizes: [50, 50],
+        onDragEnd: resizeAll,
+        gutterSize: 5
+      });
+      canvassplit = Split(['#frontcanvas', '#backcanvas'], {
+        sizes: [50, 50],
+        gutterSize: 5,
+        direction: "vertical",
+        onDragEnd: resizeAll
+      });
+  }
+  settings.bomlayout = layout;
+  writeStorage("bomlayout", layout);
+  changeCanvasLayout(settings.canvaslayout);
+}
+
+function changeBomMode(mode) {
+  document.getElementById("bom-grouped-btn").classList.remove("depressed");
+  document.getElementById("bom-ungrouped-btn").classList.remove("depressed");
+  document.getElementById("bom-netlist-btn").classList.remove("depressed");
+  switch (mode) {
+    case 'grouped':
+      document.getElementById("bom-grouped-btn").classList.add("depressed");
+      break;
+    case 'ungrouped':
+      document.getElementById("bom-ungrouped-btn").classList.add("depressed");
+      break;
+    case 'netlist':
+      document.getElementById("bom-netlist-btn").classList.add("depressed");
+  }
+  writeStorage("bommode", mode);
+  if (mode != settings.bommode) {
+    settings.bommode = mode;
+    bomSortFunction = null;
+    currentSortColumn = null;
+    currentSortOrder = null;
+    clearHighlightedFootprints();
+  }
+  populateBomTable();
+}
+
+function focusFilterField() {
+  focusInputField(document.getElementById("filter"));
+}
+
+function focusRefLookupField() {
+  focusInputField(document.getElementById("reflookup"));
+}
+
+function toggleBomCheckbox(bomrowid, checkboxnum) {
+  if (!bomrowid || checkboxnum > settings.checkboxes.length) {
+    return;
+  }
+  var bomrow = document.getElementById(bomrowid);
+  var checkbox = bomrow.childNodes[checkboxnum].childNodes[0];
+  checkbox.checked = !checkbox.checked;
+  checkbox.indeterminate = false;
+  checkbox.onchange();
+}
+
+function checkBomCheckbox(bomrowid, checkboxname) {
+  var checkboxnum = 0;
+  while (checkboxnum < settings.checkboxes.length &&
+    settings.checkboxes[checkboxnum].toLowerCase() != checkboxname.toLowerCase()) {
+    checkboxnum++;
+  }
+  if (!bomrowid || checkboxnum >= settings.checkboxes.length) {
+    return;
+  }
+  var bomrow = document.getElementById(bomrowid);
+  var checkbox = bomrow.childNodes[checkboxnum + 1].childNodes[0];
+  checkbox.checked = true;
+  checkbox.indeterminate = false;
+  checkbox.onchange();
+}
+
+function setBomCheckboxes(value) {
+  writeStorage("bomCheckboxes", value);
+  settings.checkboxes = value.split(",").filter((e) => e);
+  prepCheckboxes();
+  populateBomTable();
+  populateDarkenWhenCheckedOptions();
+}
+
+function setDarkenWhenChecked(value) {
+  writeStorage("darkenWhenChecked", value);
+  settings.darkenWhenChecked = value;
+  populateBomTable();
+}
+
+function prepCheckboxes() {
+  var table = document.getElementById("checkbox-stats");
+  while (table.childElementCount > 1) {
+    table.removeChild(table.lastChild);
+  }
+  if (settings.checkboxes.length) {
+    table.style.display = "";
+  } else {
+    table.style.display = "none";
+  }
+  for (var checkbox of settings.checkboxes) {
+    var tr = document.createElement("TR");
+    var td = document.createElement("TD");
+    td.innerHTML = checkbox;
+    tr.appendChild(td);
+    td = document.createElement("TD");
+    td.id = "checkbox-stats-" + checkbox;
+    var progressbar = document.createElement("div");
+    progressbar.classList.add("bar");
+    td.appendChild(progressbar);
+    var text = document.createElement("div");
+    text.classList.add("text");
+    td.appendChild(text);
+    tr.appendChild(td);
+    table.appendChild(tr);
+    updateCheckboxStats(checkbox);
+  }
+}
+
+function populateDarkenWhenCheckedOptions() {
+  var container = document.getElementById("darkenWhenCheckedContainer");
+
+  if (settings.checkboxes.length == 0) {
+    container.parentElement.style.display = "none";
+    return;
+  }
+
+  container.innerHTML = '';
+  container.parentElement.style.display = "inline-block";
+
+  function createOption(name, displayName) {
+    var id = "darkenWhenChecked-" + name;
+
+    var div = document.createElement("div");
+    div.classList.add("radio-container");
+
+    var input = document.createElement("input");
+    input.type = "radio";
+    input.name = "darkenWhenChecked";
+    input.value = name;
+    input.id = id;
+    input.onchange = () => setDarkenWhenChecked(name);
+    div.appendChild(input);
+
+    // Preserve the selected element when the checkboxes change
+    if (name == settings.darkenWhenChecked) {
+      input.checked = true;
+    }
+
+    var label = document.createElement("label");
+    label.innerHTML = displayName;
+    label.htmlFor = id;
+    div.appendChild(label);
+
+    container.appendChild(div);
+  }
+  createOption("", "None");
+  for (var checkbox of settings.checkboxes) {
+    createOption(checkbox, checkbox);
+  }
+}
+
+function updateCheckboxStats(checkbox) {
+  var checked = getStoredCheckboxRefs(checkbox).size;
+  var total = pcbdata.footprints.length - pcbdata.bom.skipped.length;
+  var percent = checked * 100.0 / total;
+  var td = document.getElementById("checkbox-stats-" + checkbox);
+  td.firstChild.style.width = percent + "%";
+  td.lastChild.innerHTML = checked + "/" + total + " (" + Math.round(percent) + "%)";
+}
+
+document.onkeydown = function(e) {
+  switch (e.key) {
+    case "n":
+      if (document.activeElement.type == "text") {
+        return;
+      }
+      if (currentHighlightedRowId !== null) {
+        checkBomCheckbox(currentHighlightedRowId, "placed");
+        highlightNextRow();
+        e.preventDefault();
+      }
+      break;
+    case "ArrowUp":
+      highlightPreviousRow();
+      e.preventDefault();
+      break;
+    case "ArrowDown":
+      highlightNextRow();
+      e.preventDefault();
+      break;
+    default:
+      break;
+  }
+  if (e.altKey) {
+    switch (e.key) {
+      case "f":
+        focusFilterField();
+        e.preventDefault();
+        break;
+      case "r":
+        focusRefLookupField();
+        e.preventDefault();
+        break;
+      case "z":
+        changeBomLayout("bom-only");
+        e.preventDefault();
+        break;
+      case "x":
+        changeBomLayout("left-right");
+        e.preventDefault();
+        break;
+      case "c":
+        changeBomLayout("top-bottom");
+        e.preventDefault();
+        break;
+      case "v":
+        changeCanvasLayout("F");
+        e.preventDefault();
+        break;
+      case "b":
+        changeCanvasLayout("FB");
+        e.preventDefault();
+        break;
+      case "n":
+        changeCanvasLayout("B");
+        e.preventDefault();
+        break;
+      default:
+        break;
+    }
+    if (e.key >= '1' && e.key <= '9') {
+      toggleBomCheckbox(currentHighlightedRowId, parseInt(e.key));
+    }
+  }
+}
+
+function hideNetlistButton() {
+  document.getElementById("bom-ungrouped-btn").classList.remove("middle-button");
+  document.getElementById("bom-ungrouped-btn").classList.add("right-most-button");
+  document.getElementById("bom-netlist-btn").style.display = "none";
+}
+
+window.onload = function(e) {
+  initUtils();
+  initRender();
+  initStorage();
+  initDefaults();
+  cleanGutters();
+  populateMetadata();
+  dbgdiv = document.getElementById("dbg");
+  bom = document.getElementById("bombody");
+  bomhead = document.getElementById("bomhead");
+  filter = "";
+  reflookup = "";
+  if (!("nets" in pcbdata)) {
+    hideNetlistButton();
+  }
+  initDone = true;
+  prepCheckboxes();
+  // Triggers render
+  changeBomLayout(settings.bomlayout);
+
+  // Users may leave fullscreen without touching the checkbox. Uncheck.
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement)
+      document.getElementById('fullscreenCheckbox').checked = false;
+  });
+}
+
+window.onresize = resizeAll;
+window.matchMedia("print").addListener(resizeAll);
+
+///////////////////////////////////////////////
+
+///////////////////////////////////////////////
+ 
+///////////////////////////////////////////////
+  </script>
+</head>
+
+<body>
+<!-- USERHEADER -->
+<div id="topmostdiv" class="topmostdiv">
+  <div id="top">
+    <div style="float: right; height: 100%;">
+      <div class="hideonprint menu" style="float: right; top: 8px;">
+        <button class="menubtn"></button>
+        <div class="menu-content">
+          <label class="menu-label menu-label-top" style="width: calc(50% - 18px)">
+            <input id="darkmodeCheckbox" type="checkbox" onchange="setDarkMode(this.checked)">
+            Dark mode
+          </label><!-- This comment eats space! All of it!
+          --><label class="menu-label menu-label-top" style="width: calc(50% - 17px); border-left: 0;">
+            <input id="fullscreenCheckbox" type="checkbox" onchange="setFullscreen(this.checked)">
+            Full Screen
+          </label>
+          <label class="menu-label" style="width: calc(50% - 18px)">
+            <input id="fabricationCheckbox" type="checkbox" checked onchange="fabricationVisible(this.checked)">
+            Fab layer
+          </label><!-- This comment eats space! All of it!
+          --><label class="menu-label" style="width: calc(50% - 17px); border-left: 0;">
+            <input id="silkscreenCheckbox" type="checkbox" checked onchange="silkscreenVisible(this.checked)">
+            Silkscreen
+          </label>
+          <label class="menu-label" style="width: calc(50% - 18px)">
+            <input id="referencesCheckbox" type="checkbox" checked onchange="referencesVisible(this.checked)">
+            References
+          </label><!-- This comment eats space! All of it!
+          --><label class="menu-label" style="width: calc(50% - 17px); border-left: 0;">
+            <input id="valuesCheckbox" type="checkbox" checked onchange="valuesVisible(this.checked)">
+            Values
+          </label>
+          <div id="tracksAndZonesCheckboxes">
+            <label class="menu-label" style="width: calc(50% - 18px)">
+              <input id="tracksCheckbox" type="checkbox" checked onchange="tracksVisible(this.checked)">
+              Tracks
+            </label><!-- This comment eats space! All of it!
+            --><label class="menu-label" style="width: calc(50% - 17px); border-left: 0;">
+              <input id="zonesCheckbox" type="checkbox" checked onchange="zonesVisible(this.checked)">
+              Zones
+            </label>
+          </div>
+          <label class="menu-label" style="width: calc(50% - 18px)">
+            <input id="padsCheckbox" type="checkbox" checked onchange="padsVisible(this.checked)">
+            Pads
+          </label><!-- This comment eats space! All of it!
+          --><label class="menu-label" style="width: calc(50% - 17px); border-left: 0;">
+            <input id="dnpOutlineCheckbox" type="checkbox" checked onchange="dnpOutline(this.checked)">
+            DNP outlined
+          </label>
+          <label class="menu-label">
+            <input id="highlightpin1Checkbox" type="checkbox" onchange="setHighlightPin1(this.checked)">
+            Highlight first pin
+          </label>
+          <label class="menu-label">
+            <input id="dragCheckbox" type="checkbox" checked onchange="setRedrawOnDrag(this.checked)">
+            Continuous redraw on drag
+          </label>
+          <label class="menu-label">
+            <span>Board rotation</span>
+            <span style="float: right"><span id="rotationDegree">0</span>&#176;</span>
+            <input id="boardRotation" type="range" min="-36" max="36" value="0" class="slider" oninput="setBoardRotation(this.value)">
+          </label>
+          <label class="menu-label">
+            <div style="margin-left: 5px">Bom checkboxes</div>
+            <input id="bomCheckboxes" class="menu-textbox" type=text
+                   oninput="setBomCheckboxes(this.value)">
+          </label>
+          <label class="menu-label">
+            <div style="margin-left: 5px">Darken when checked</div>
+            <div id="darkenWhenCheckedContainer"></div>
+          </label>
+          <label class="menu-label">
+            <span class="shameless-plug">
+              <span>Created using</span>
+              <a id="github-link" target="blank" href="https://github.com/openscopeproject/InteractiveHtmlBom">InteractiveHtmlBom</a>
+            </span>
+          </label>
+        </div>
+      </div>
+      <div class="button-container hideonprint"
+           style="float: right; position: relative; top: 8px">
+        <button id="fl-btn" class="left-most-button" onclick="changeCanvasLayout('F')"
+                title="Front only">F
+        </button>
+        <button id="fb-btn" class="middle-button" onclick="changeCanvasLayout('FB')"
+                title="Front and Back">FB
+        </button>
+        <button id="bl-btn" class="right-most-button" onclick="changeCanvasLayout('B')"
+                title="Back only">B
+        </button>
+      </div>
+      <div class="button-container hideonprint"
+           style="float: right; position: relative; top: 8px">
+        <button id="bom-btn" class="left-most-button" onclick="changeBomLayout('bom-only')"
+                title="BOM only"></button>
+        <button id="lr-btn" class="middle-button" onclick="changeBomLayout('left-right')"
+                title="BOM left, drawings right"></button>
+        <button id="tb-btn" class="right-most-button" onclick="changeBomLayout('top-bottom')"
+                title="BOM top, drawings bot"></button>
+      </div>
+      <div class="button-container hideonprint"
+           style="float: right; position: relative; top: 8px">
+        <button id="bom-grouped-btn" class="left-most-button" onclick="changeBomMode('grouped')"
+                title="Grouped BOM"></button>
+        <button id="bom-ungrouped-btn" class="middle-button" onclick="changeBomMode('ungrouped')"
+                title="Ungrouped BOM"></button>
+        <button id="bom-netlist-btn" class="right-most-button" onclick="changeBomMode('netlist')"
+                title="Netlist"></button>
+      </div>
+      <div class="hideonprint menu" style="float: right; top: 8px;">
+        <button class="statsbtn"></button>
+        <div class="menu-content">
+          <table class="stats">
+            <tbody>
+              <tr>
+                <td width="40%">Board stats</td>
+                <td>Front</td>
+                <td>Back</td>
+                <td>Total</td>
+              </tr>
+              <tr>
+                <td>Components</td>
+                <td id="stats-components-front">~</td>
+                <td id="stats-components-back">~</td>
+                <td id="stats-components-total">~</td>
+              </tr>
+              <tr>
+                <td>Groups</td>
+                <td id="stats-groups-front">~</td>
+                <td id="stats-groups-back">~</td>
+                <td id="stats-groups-total">~</td>
+              </tr>
+              <tr>
+                <td>SMD pads</td>
+                <td id="stats-smd-pads-front">~</td>
+                <td id="stats-smd-pads-back">~</td>
+                <td id="stats-smd-pads-total">~</td>
+              </tr>
+              <tr>
+                <td>TH pads</td>
+                <td colspan=3 id="stats-th-pads">~</td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="stats">
+            <col width="40%"/><col />
+            <tbody id="checkbox-stats">
+              <tr>
+                <td colspan=2 style="border-top: 0">Checkboxes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="hideonprint menu" style="float: right; top: 8px;">
+        <button class="iobtn"></button>
+        <div class="menu-content">
+          <div class="menu-label menu-label-top">
+            <div style="margin-left: 5px;">Save board image</div>
+            <div class="flexbox">
+              <input id="render-save-width" class="menu-textbox" type="text" value="1000" placeholder="Width"
+                  style="flex-grow: 1; width: 50px;" oninput="validateSaveImgDimension(this)">
+              <span>X</span>
+              <input id="render-save-height" class="menu-textbox" type="text" value="1000" placeholder="Height"
+                  style="flex-grow: 1; width: 50px;" oninput="validateSaveImgDimension(this)">
+            </div>
+            <label>
+              <input id="render-save-transparent" type="checkbox">
+              Transparent background
+            </label>
+            <div class="flexbox">
+              <button class="savebtn" onclick="saveImage('F')">Front</button>
+              <button class="savebtn" onclick="saveImage('B')">Back</button>
+            </div>
+          </div>
+          <div class="menu-label">
+            <span style="margin-left: 5px;">Config and checkbox state</span>
+            <div class="flexbox">
+              <button class="savebtn" onclick="saveSettings()">Export</button>
+              <button class="savebtn" onclick="loadSettings()">Import</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="fileinfodiv" style="overflow: auto;">
+      <table class="fileinfo">
+        <tbody>
+          <tr>
+            <td id="title" class="title" style="width: 70%">
+              Title
+            </td>
+            <td id="revision" class="title" style="width: 30%">
+              Revision
+            </td>
+          </tr>
+          <tr>
+            <td id="company">
+              Company
+            </td>
+            <td id="filedate">
+              Date
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div id="bot" class="split" style="height: calc(100% - 80px)">
+    <div id="bomdiv" class="split split-horizontal">
+      <div style="width: 100%">
+        <input id="reflookup" class="textbox searchbox reflookup hideonprint" type="text" placeholder="Ref lookup"
+               oninput="updateRefLookup(this.value)">
+        <input id="filter" class="textbox searchbox filter hideonprint" type="text" placeholder="Filter"
+               oninput="updateFilter(this.value)">
+        <div class="button-container hideonprint" style="float: left; margin: 0;">
+          <button id="copy" title="Copy bom table to clipboard"
+               onclick="copyToClipboard()"></button>
+        </div>
+      </div>
+      <div id="dbg"></div>
+      <table class="bom">
+        <thead id="bomhead">
+        </thead>
+        <tbody id="bombody">
+        </tbody>
+      </table>
+    </div>
+    <div id="canvasdiv" class="split split-horizontal">
+      <div id="frontcanvas" class="split" touch-action="none" style="overflow: hidden">
+        <div style="position: relative; width: 100%; height: 100%;">
+          <canvas id="F_bg" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
+          <canvas id="F_fab" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
+          <canvas id="F_slk" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
+          <canvas id="F_hl" style="position: absolute; left: 0; top: 0; z-index: 3;"></canvas>
+        </div>
+      </div>
+      <div id="backcanvas" class="split" touch-action="none" style="overflow: hidden">
+        <div style="position: relative; width: 100%; height: 100%;">
+          <canvas id="B_bg" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
+          <canvas id="B_fab" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
+          <canvas id="B_slk" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
+          <canvas id="B_hl" style="position: absolute; left: 0; top: 0; z-index: 3;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- USERFOOTER -->
+</body>
+
+</html>
