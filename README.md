@@ -10,84 +10,84 @@
 
 ## 主要零件集合图
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%95%B0%E6%8E%A7T12%E5%BC%80%E6%BA%90%E5%8E%9F%E7%90%86%E5%9B%BE.png" width="900" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%85%A8%E5%A5%97%E6%95%A3%E4%BB%B6.jpg" width="700">
 </div>
 
 ## 原理图  
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%95%B0%E6%8E%A7T12%E5%BC%80%E6%BA%90%E5%8E%9F%E7%90%86%E5%9B%BE.png" width="900" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%95%B0%E6%8E%A7T12%E5%BC%80%E6%BA%90%E5%8E%9F%E7%90%86%E5%9B%BE.png" width="700" >
 </div>
 
 ## PCB图  
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/3D%E8%A7%86%E5%9B%BE.png" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/3D%E8%A7%86%E5%9B%BE.png" width="700">
 </div>
 
 ## 极简数控T12安装与调试指导
 ### 1.主板与按键板焊接  
 结合PCB板上的**丝印**或project文件夹下的**ibom文件**焊接主控板和按键板上的贴片元件。 
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E4%B8%BB%E6%8E%A7%E6%9D%BF.jpg" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E4%B8%BB%E6%8E%A7%E6%9D%BF.jpg" width="500">
 </div>  
 
 按键板最下方的的黑色小按键用于切换屏幕显示方向，不建议焊接，在需要切换方向时用镊子短接左右两个触点2秒左右即可。  
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%8C%89%E9%94%AE%E6%9D%BF%E7%84%8A%E6%8E%A5.jpg" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%8C%89%E9%94%AE%E6%9D%BF%E7%84%8A%E6%8E%A5.jpg" width="300">
 </div>
 
 ### 2.烙铁芯限位焊接  
-2.	将两个小圆环焊接到主控板上，务必使其居中，否则可能影响后面烙铁芯的正常插拔。另外上下两面都要用锡固定， 避免操作不当损坏！
+将两个小圆环焊接到主控板上，务必使其居中，否则可能影响后面烙铁芯的正常插拔。另外上下两面都要用锡固定， 避免操作不当损坏！
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%9C%86%E7%8E%AF%E7%84%8A%E6%8E%A5.jpg" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%9C%86%E7%8E%AF%E7%84%8A%E6%8E%A5.jpg" width="700">
 </div>  
 
 ### 3.固件烧录
 使用stc-isp软件，加载文件夹下提供的**simple_t12.hex文件**下载到主控板即可，具体连线方式参考原理图。  
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/stc-isp.jpg" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/stc-isp.jpg" width="700">
 </div>  
 
 ### 4.屏幕焊接与测试
 将屏幕插入到主控板的FPC接口上，通电测试屏幕是否成功点亮，第一次开机温度**显示-1℃**，若屏幕无法正常点亮，检查78L05的输入输出电压，判断是否供电正常，正常输出电压为5V左右。若无输出电压，请检查typec接口、FS312芯片是否有虚焊或连锡短路的情况。  
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%B1%8F%E5%B9%95%E6%B5%8B%E8%AF%95.jpg" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%B1%8F%E5%B9%95%E6%B5%8B%E8%AF%95.jpg" width="700">
 </div>  
 
 ### 5.限位排针焊接  
 将按键板焊接到主控板上，务必使二者紧密接触，减小触点间的间隙，正反两面的焊盘都要焊接，使其固定的比较牢固，避免出现后续安装时掉焊盘的情况。  
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%8E%92%E9%92%88%E7%84%8A%E6%8E%A5.jpg" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%8E%92%E9%92%88%E7%84%8A%E6%8E%A5.jpg" width="300">
 </div>  
 
 ### 6.按键板组装  
 将按键板焊接到主控板上，务必使二者紧密接触，减小触点间的间隙，正反两面的焊盘都要焊接，使其固定的比较牢固，避免出现后续安装时掉焊盘的情况。 
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%8C%89%E9%94%AE%E6%9D%BF%E7%BB%84%E8%A3%85.jpg" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%8C%89%E9%94%AE%E6%9D%BF%E7%BB%84%E8%A3%85.jpg" width="300">
 </div>  
 
 
 ### 7.烙铁芯弹片焊接  
 将烙铁芯插入主控板，将弹片焊接到主控板上，因个人焊接水平差异，可能需要调整弹片角度，使其既能夹紧烙铁芯，又不会使烙铁芯插拔困难。  
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E7%84%8A%E6%8E%A5%E5%BC%B9%E7%89%87.jpg" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E7%84%8A%E6%8E%A5%E5%BC%B9%E7%89%87.jpg" width="700">
 </div>  
 
 ### 8.功能测试  
 再次通电测试烙铁芯发热是否正常，若不发热，请检查P-MOS的第一个引脚是否有24V的电压，若无电压则检查焊接；若烙铁芯存在持续加热烧红的情况，不要慌张，断电后拔下烙铁芯，检查三极管电路及LM358运放电路是否有虚焊或者连锡，排除故障后再次测试；若以上工作正常，检查按键功能是否正常，若存在某个按键持续触发的情况，则检查是否连锡，若某个按键无法触发则检查是否虚焊。  
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%8A%A0%E7%83%AD%E6%95%85%E9%9A%9C.jpg" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%8A%A0%E7%83%AD%E6%95%85%E9%9A%9C.jpg" width="500">
 </div>  
 
 ### 9.外壳安装
 将主控板插入清理干净的透明外壳中（外壳会有切割后的碎屑，可以用烙铁芯加纸巾进行清理），为了结构的稳定，主控孔板和外壳的间隙很小，PCB边沿处会在外壳上留下痕迹，所以不要反复插拔，如果一定要插拔，可以沿着上次插拔时留下的痕迹插入，避免在外壳上留下过多的划痕，影响美观。  
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%A4%96%E5%A3%B3%E5%AE%89%E8%A3%85.jpg" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%A4%96%E5%A3%B3%E5%AE%89%E8%A3%85.jpg" width="700">
 </div>  
 
 ### 10.安装完成  
 将顶部挡板安装到外壳顶部，使其紧密配合，排针的角度注意调整，否则可能造成所有外壳损坏。  
 <div align=center>
-<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%9C%80%E7%BB%88%E6%88%90%E5%93%81.jpg" >
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%9C%80%E7%BB%88%E6%88%90%E5%93%81.jpg" width="700">
 </div>  
 
 ### 11.注意事项  
