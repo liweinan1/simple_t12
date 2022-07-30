@@ -32,7 +32,7 @@
 
 ### 6.按键板组装  
 将按键板焊接到主控板上，务必使二者紧密接触，减小触点间的间隙，正反两面的焊盘都要焊接，使其固定的比较牢固，避免出现后续安装时掉焊盘的情况。  
-![Image ](https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%8C%89%E9%94%AE%E7%84%8A%E6%8E%A5.jpg)
+![Image 按键板组装](https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%8C%89%E9%94%AE%E6%9D%BF%E7%BB%84%E8%A3%85.jpg)
 ### 7.烙铁芯弹片焊接  
 将烙铁芯插入主控板，将弹片焊接到主控板上，因个人焊接水平差异，可能需要调整弹片角度，使其既能夹紧烙铁芯，又不会使烙铁芯插拔困难。  
 ![Image ](https://github.com/liweinan1/simple_t12/blob/main/pictures/%E7%84%8A%E6%8E%A5%E5%BC%B9%E7%89%87.jpg)
