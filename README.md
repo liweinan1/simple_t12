@@ -2,11 +2,11 @@
 &emsp;&emsp;本项目开发了一套以国产STC单片机为核心的数显电烙铁，能够快速更换烙铁芯，支持PD快充协议进行供电，可以使用能够输出20v以上的手机充电器/充电宝进行供电(功率要求55w以上)，通过显示模块和按键进行人机交互，具有自动休眠功能。在保证实现所有功能的前提下，尽量的控制了成本，全套零件材料成本可以控制在30元以下，其中主控芯片stc8g1k08a售价不足1元，二手T12烙铁芯甚至可以在3元左右买到，如果能够进一步优化并量产，成本还可以有所降低！  
 &emsp;&emsp;本项目会提供以下文件，以便于自行购买材料组装：硬件原理图，PCB打板文件，bom清单，系统固件（源代码暂不开源）。上述文件将存放于project文件夹中，同时在本文档中会提供全套硬件的组装与调试方法。  
 ## 提供一个简单的测试视频如下:
-[![Watch the video](https://github.com/liweinan1/simple_t12/blob/main/videos/%E8%A7%86%E9%A2%91%E5%B0%81%E9%9D%A2.jpg)](https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%B5%8B%E8%AF%95%E8%A7%86%E9%A2%91.mp4)
+[![Watch the video](https://github.com/liweinan1/simple_t12/blob/main/videos/%E8%A7%86%E9%A2%91%E5%B0%81%E9%9D%A2.jpg)](https://github.com/liweinan1/simple_t12/blob/main/videos/%E6%B5%8B%E8%AF%95%E8%A7%86%E9%A2%91.mp4)
 <!-- https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%B5%8B%E8%AF%95%E8%A7%86%E9%A2%91.mp4 -->
 ## 原理图与PCB图  
-![Image ](https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%8E%9F%E7%90%86%E5%9B%BE.jpg)
-![Image ](https://github.com/liweinan1/simple_t12/blob/main/pictures/3D%E8%A7%86%E5%9B%BE.png)
+![Image ](https://github.com/liweinan1/simple_t12/blob/main/pictures/%E5%8E%9F%E7%90%86%E5%9B%BE.jpg)  
+![Image ](https://github.com/liweinan1/simple_t12/blob/main/pictures/3D%E8%A7%86%E5%9B%BE.png)  
 
 ## 极简数控T12安装与调试指导
 ### 1.主板与按键板焊接  
