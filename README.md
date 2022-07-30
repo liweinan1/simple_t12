@@ -12,7 +12,7 @@
 ### 1.主板与按键板焊接  
 结合PCB板上的丝印或project文件夹下的bom文件焊接主控板和按键板上的贴片元件。按键板最下方的的黑色小按键用于切换屏幕显示方向，不建议焊接，在需要切换方向时用镊子短接左右两个触点2秒左右即可。
 
-![Image 主控板焊接](https://github.com/liweinan1/simple_t12/blob/main/pictures/%E4%B8%BB%E6%8E%A7%E6%9D%BF.jpg)
+![Image 主控板焊接]([https://github.com/liweinan1/simple_t12/blob/main/pictures/%E4%B8%BB%E6%8E%A7%E6%9D%BF.jpg](https://github.com/liweinan1/simple_t12/blob/main/pictures/%E4%B8%BB%E6%8E%A7%E6%9D%BF.jpg))
 ![Image 按键板焊接](https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%8C%89%E9%94%AE%E6%9D%BF.jpg)  
 ### 2.烙铁芯限位焊接  
 2.	将两个小圆环焊接到主控板上，务必使其居中，否则可能影响后面烙铁芯的正常插拔。另外上下两面都要用锡固定， 避免操作不当损坏！
