@@ -42,9 +42,13 @@
 </div>  
 
 ### 3.固件烧录
-使用stc-isp软件，加载文件夹下提供的**simple_t12.hex文件**下载到主控板即可，具体连线方式参考原理图。  
+使用stc-isp软件，加载文件夹下提供的**simple_t12.hex文件**下载到主控板即可。  
 <div align=center>
 <img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/stc-isp.jpg" width="700">
+</div>  
+具体连线方式参考下图，使用USB_to_ttl下载器，其中VCC与GND分别连接下载器的5V和GND，由于单片机的串口下载引脚被用作IIC引脚驱动屏幕，所以PCB中将TX与RX引脚分别命名为SDA与SCL，因此这里使用PCB上的SCL连接下载器的TXD，SDA连接下载器的RXD即可。
+<div align=center>
+<img src="https://github.com/liweinan1/simple_t12/blob/main/pictures/%E7%A8%8B%E5%BA%8F%E7%83%A7%E5%BD%95%E6%8E%A5%E7%BA%BF.pngg" width="700">
 </div>  
 
 ### 4.屏幕焊接与测试
