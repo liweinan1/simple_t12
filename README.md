@@ -7,6 +7,7 @@
 ## 提供一个简单的测试视频如下:
 [![Watch the video](https://github.com/liweinan1/simple_t12/blob/main/videos/%E8%A7%86%E9%A2%91%E5%B0%81%E9%9D%A2.jpg)](https://github.com/liweinan1/simple_t12/blob/main/videos/%E6%B5%8B%E8%AF%95%E8%A7%86%E9%A2%91.mp4)
 <!-- https://github.com/liweinan1/simple_t12/blob/main/pictures/%E6%B5%8B%E8%AF%95%E8%A7%86%E9%A2%91.mp4 -->
+由于github显示图片和视频不太方便，**将三种显示模块的测试视频上传到了哔哩哔哩：**[bilibili链接](https://space.bilibili.com/284525970/channel/seriesdetail?sid=2531601)
 
 ## 主要零件集合图
 <div align=center>
